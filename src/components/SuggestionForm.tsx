@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { MessageSquare, Send, CheckCircle } from "lucide-react";
+import { MessageSquare, Send, CheckCircle, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FormData {
   suggestion: string;
@@ -25,6 +26,7 @@ const SuggestionForm = () => {
   });
   const [isDataReceived, setIsDataReceived] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fallbackMode, setFallbackMode] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -54,10 +56,30 @@ const SuggestionForm = () => {
       window.parent.postMessage({ type: "SUGGESTION_FORM_READY" }, "*");
     }
 
+    // Timeout para ativar modo de fallback após 5 segundos
+    const fallbackTimer = setTimeout(() => {
+      if (!isDataReceived) {
+        setFallbackMode(true);
+        setFormData(prev => ({
+          ...prev,
+          visitorId: "fallback_visitor_" + Date.now(),
+          accountId: "fallback_account_" + Date.now(),
+        }));
+        setIsDataReceived(true);
+        
+        toast({
+          title: "Modo de teste ativado",
+          description: "Formulário funcionando sem conexão com aplicativo pai.",
+          duration: 3000,
+        });
+      }
+    }, 5000);
+
     return () => {
       window.removeEventListener("message", handleMessage);
+      clearTimeout(fallbackTimer);
     };
-  }, [toast]);
+  }, [toast, isDataReceived]);
 
   const handleSuggestionChange = (value: string) => {
     setFormData(prev => ({
@@ -89,21 +111,30 @@ const SuggestionForm = () => {
 
     setIsSubmitting(true);
 
-    // Log completo dos dados para teste
-    console.log("=== DADOS DO FORMULÁRIO DE SUGESTÃO ===");
-    console.log("Sugestão:", formData.suggestion);
-    console.log("Visitor ID:", formData.visitorId);
-    console.log("Account ID:", formData.accountId);
-    console.log("Timestamp:", new Date().toISOString());
-    console.log("Dados completos:", formData);
-    console.log("=======================================");
+    try {
+      console.log("=== SALVANDO SUGESTÃO NO BANCO ===");
+      console.log("Dados:", formData);
+      
+      // Inserir no Supabase
+      const { data, error } = await supabase
+        .from('suggestions')
+        .insert({
+          suggestion: formData.suggestion.trim(),
+          visitor_id: formData.visitorId,
+          account_id: formData.accountId,
+        })
+        .select();
 
-    // Simular envio
-    setTimeout(() => {
-      setIsSubmitting(false);
+      if (error) {
+        console.error("Erro ao salvar:", error);
+        throw error;
+      }
+
+      console.log("Sugestão salva com sucesso:", data);
+
       toast({
-        title: "Sugestão enviada!",
-        description: "Obrigado pelo seu feedback. Dados logados no console.",
+        title: "Sugestão enviada com sucesso!",
+        description: `Obrigado pelo seu feedback. ${fallbackMode ? '(Modo teste)' : ''}`,
       });
       
       // Limpar apenas o campo de sugestão
@@ -111,7 +142,18 @@ const SuggestionForm = () => {
         ...prev,
         suggestion: "",
       }));
-    }, 1000);
+
+    } catch (error) {
+      console.error("Erro completo:", error);
+      
+      toast({
+        title: "Erro ao enviar sugestão",
+        description: "Tente novamente em alguns instantes.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -135,7 +177,9 @@ const SuggestionForm = () => {
               {isDataReceived ? (
                 <>
                   <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span className="text-green-600">Conectado ao aplicativo</span>
+                  <span className="text-green-600">
+                    {fallbackMode ? 'Modo teste ativo' : 'Conectado ao aplicativo'}
+                  </span>
                 </>
               ) : (
                 <>
@@ -144,6 +188,14 @@ const SuggestionForm = () => {
                 </>
               )}
             </div>
+            {fallbackMode && (
+              <div className="flex items-center gap-2 text-xs mt-2">
+                <AlertCircle className="w-3 h-3 text-orange-500" />
+                <span className="text-orange-600">
+                  Funcionando sem dados do aplicativo pai
+                </span>
+              </div>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
