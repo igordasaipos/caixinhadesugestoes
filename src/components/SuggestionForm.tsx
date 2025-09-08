@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { Send } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Send, CheckCircle, XCircle, Store, User, Mail, Phone, Hash } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface FormData {
@@ -111,36 +111,100 @@ const SuggestionForm = () => {
     }
   };
 
+  const DebugField = ({ icon: Icon, label, value, hasValue }: {
+    icon: any;
+    label: string;
+    value: string;
+    hasValue: boolean;
+  }) => (
+    <div className="flex items-center justify-between p-3 rounded-md bg-muted/50">
+      <div className="flex items-center gap-2">
+        <Icon className="w-4 h-4 text-muted-foreground" />
+        <span className="text-sm font-medium">{label}:</span>
+      </div>
+      <div className="flex items-center gap-2">
+        {hasValue ? (
+          <CheckCircle className="w-4 h-4 text-green-600" />
+        ) : (
+          <XCircle className="w-4 h-4 text-red-500" />
+        )}
+        <span className={`text-sm ${hasValue ? 'text-foreground' : 'text-muted-foreground'}`}>
+          {value || 'Não preenchido'}
+        </span>
+      </div>
+    </div>
+  );
+
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardContent className="p-6">
-        <h1 className="text-xl font-semibold mb-4">Envie sua Sugestão</h1>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Textarea
-            placeholder="Digite sua sugestão aqui..."
-            value={formData.suggestion}
-            onChange={(e) => setFormData(prev => ({ ...prev, suggestion: e.target.value }))}
-            className="min-h-[100px]"
-          />
+    <div className="w-full max-w-md mx-auto space-y-4">
+      <Card>
+        <CardContent className="p-6">
+          <h1 className="text-xl font-semibold mb-4">Envie sua Sugestão</h1>
           
-          <Button
-            type="submit"
-            disabled={!formData.suggestion.trim() || isSubmitting}
-            className="w-full"
-          >
-            {isSubmitting ? (
-              "Enviando..."
-            ) : (
-              <>
-                <Send className="w-4 h-4 mr-2" />
-                Enviar
-              </>
-            )}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Textarea
+              placeholder="Digite sua sugestão aqui..."
+              value={formData.suggestion}
+              onChange={(e) => setFormData(prev => ({ ...prev, suggestion: e.target.value }))}
+              className="min-h-[100px]"
+            />
+            
+            <Button
+              type="submit"
+              disabled={!formData.suggestion.trim() || isSubmitting}
+              className="w-full"
+            >
+              {isSubmitting ? (
+                "Enviando..."
+              ) : (
+                <>
+                  <Send className="w-4 h-4 mr-2" />
+                  Enviar
+                </>
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Debug - Dados Recebidos</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <DebugField
+            icon={Store}
+            label="Loja selecionada"
+            value={formData.visitorId}
+            hasValue={!!formData.visitorId}
+          />
+          <DebugField
+            icon={Hash}
+            label="ID do usuário"
+            value={formData.accountId}
+            hasValue={!!formData.accountId}
+          />
+          <DebugField
+            icon={User}
+            label="Nome"
+            value={formData.userFullName}
+            hasValue={!!formData.userFullName}
+          />
+          <DebugField
+            icon={Mail}
+            label="Email"
+            value={formData.userEmail}
+            hasValue={!!formData.userEmail}
+          />
+          <DebugField
+            icon={Phone}
+            label="Telefone"
+            value={formData.storePhone1}
+            hasValue={!!formData.storePhone1}
+          />
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
