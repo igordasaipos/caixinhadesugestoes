@@ -9,6 +9,9 @@ interface FormData {
   suggestion: string;
   visitorId: string;
   accountId: string;
+  userFullName: string;
+  userEmail: string;
+  storePhone1: string;
 }
 
 const SuggestionForm = () => {
@@ -16,6 +19,9 @@ const SuggestionForm = () => {
     suggestion: "",
     visitorId: "",
     accountId: "",
+    userFullName: "",
+    userEmail: "",
+    storePhone1: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -26,6 +32,9 @@ const SuggestionForm = () => {
           ...prev,
           visitorId: event.data.visitorId || "",
           accountId: event.data.accountId || "",
+          userFullName: event.data.userFullName || "",
+          userEmail: event.data.userEmail || "",
+          storePhone1: event.data.storePhone1 || "",
         }));
       }
     };
@@ -52,6 +61,9 @@ const SuggestionForm = () => {
           suggestion: formData.suggestion.trim(),
           visitor_id: formData.visitorId,
           account_id: formData.accountId,
+          user_full_name: formData.userFullName,
+          user_email: formData.userEmail,
+          store_phone1: formData.storePhone1,
         });
 
       // Limpar formulário
