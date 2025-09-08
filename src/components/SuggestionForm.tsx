@@ -28,14 +28,27 @@ const SuggestionForm = () => {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === "INIT_SUGGESTION_FORM") {
-        setFormData(prev => ({
-          ...prev,
+        console.log("=== REACT RECEIVED DATA ===");
+        console.log("Raw event data:", event.data);
+        console.log("Data validation:", {
+          hasVisitorId: !!event.data.visitorId,
+          hasAccountId: !!event.data.accountId,
+          hasUserFullName: !!event.data.userFullName,
+          hasUserEmail: !!event.data.userEmail,
+          hasStorePhone1: !!event.data.storePhone1
+        });
+        
+        const newFormData = {
+          suggestion: "",
           visitorId: event.data.visitorId || "",
           accountId: event.data.accountId || "",
           userFullName: event.data.userFullName || "",
           userEmail: event.data.userEmail || "",
           storePhone1: event.data.storePhone1 || "",
-        }));
+        };
+        
+        console.log("Setting form data to:", newFormData);
+        setFormData(newFormData);
       }
     };
 
@@ -55,16 +68,38 @@ const SuggestionForm = () => {
     setIsSubmitting(true);
 
     try {
-      await supabase
+      console.log("=== SAVING TO SUPABASE ===");
+      console.log("Form data before save:", formData);
+      
+      const dataToSave = {
+        suggestion: formData.suggestion.trim(),
+        visitor_id: formData.visitorId,
+        account_id: formData.accountId,
+        user_full_name: formData.userFullName,
+        user_email: formData.userEmail,
+        store_phone1: formData.storePhone1,
+      };
+      
+      console.log("Data being saved to Supabase:", dataToSave);
+      console.log("Data validation before save:", {
+        hasSuggestion: !!dataToSave.suggestion,
+        hasVisitorId: !!dataToSave.visitor_id,
+        hasAccountId: !!dataToSave.account_id,
+        hasUserFullName: !!dataToSave.user_full_name,
+        hasUserEmail: !!dataToSave.user_email,
+        hasStorePhone1: !!dataToSave.store_phone1
+      });
+
+      const { data, error } = await supabase
         .from('suggestions')
-        .insert({
-          suggestion: formData.suggestion.trim(),
-          visitor_id: formData.visitorId,
-          account_id: formData.accountId,
-          user_full_name: formData.userFullName,
-          user_email: formData.userEmail,
-          store_phone1: formData.storePhone1,
-        });
+        .insert(dataToSave);
+
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
+      
+      console.log("✅ Successfully saved to Supabase:", data);
 
       // Limpar formulário
       setFormData(prev => ({ ...prev, suggestion: "" }));
