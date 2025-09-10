@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Send, CheckCircle, XCircle, Store, User, Mail, Phone, Hash, Clock, MessageSquare, Loader2 } from "lucide-react";
+import { Send, CheckCircle, XCircle, Store, User, Mail, Phone, Hash, Clock, MessageSquare, Loader2, AlertCircle, FileX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -200,6 +200,39 @@ const SuggestionForm = () => {
       </div>
     </div>
   );
+
+  // Check if we have any user data
+  const hasUserData = formData.accountId || formData.userFullName || formData.userEmail;
+
+  // Show empty state if no user data is available
+  if (!hasUserData) {
+    return (
+      <div className="w-full max-w-md mx-auto">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <FileX className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
+            <h1 className="text-xl font-semibold mb-2">Sistema de Sugestões</h1>
+            <p className="text-muted-foreground mb-4">
+              Aguardando dados do usuário...
+            </p>
+            <div className="bg-muted/50 rounded-lg p-4 text-left">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                <div className="text-sm">
+                  <p className="font-medium mb-1">Como usar:</p>
+                  <ul className="text-muted-foreground space-y-1">
+                    <li>• Este formulário deve ser aberto através do sistema principal</li>
+                    <li>• Os dados do usuário serão carregados automaticamente</li>
+                    <li>• Após o carregamento, você poderá enviar suas sugestões</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-md mx-auto space-y-4">
