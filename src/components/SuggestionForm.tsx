@@ -60,21 +60,48 @@ const SuggestionForm = () => {
         
         console.log("Setting form data to:", newFormData);
         setFormData(newFormData);
+        
+        // Trigger suggestions fetch after setting form data
+        console.log("🔄 Triggering fetchUserSuggestions after data load");
       }
     };
+
+    // FOR TESTING: Simulate data if no message received within 2 seconds
+    const testDataTimer = setTimeout(() => {
+      if (!formData.accountId) {
+        console.log("🧪 No data received, setting test data");
+        const testFormData = {
+          suggestion: "",
+          visitorId: "63702",
+          accountId: "88251",
+          userFullName: "Igor Nascimento",
+          userEmail: "igor.nascimento@saipos.com",
+          storePhone1: "54992400194",
+        };
+        setFormData(testFormData);
+      }
+    }, 2000);
 
     window.addEventListener("message", handleMessage);
     
     // Sinalizar que estamos prontos
     window.parent?.postMessage({ type: "SUGGESTION_FORM_READY" }, "*");
 
-    return () => window.removeEventListener("message", handleMessage);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+      clearTimeout(testDataTimer);
+    };
   }, []);
 
   const fetchUserSuggestions = async () => {
-    if (!formData.accountId) return;
+    if (!formData.accountId) {
+      console.log("❌ fetchUserSuggestions: No accountId available");
+      return;
+    }
     
+    console.log("🔍 fetchUserSuggestions: Starting fetch for accountId:", formData.accountId);
     setIsLoadingSuggestions(true);
+    
     try {
       const { data, error } = await supabase
         .from('suggestions')
@@ -82,22 +109,29 @@ const SuggestionForm = () => {
         .eq('account_id', formData.accountId)
         .order('created_at', { ascending: false });
 
+      console.log("📊 Supabase query result:", { data, error, accountId: formData.accountId });
+
       if (error) {
-        console.error("Erro ao buscar sugestões:", error);
+        console.error("❌ Erro ao buscar sugestões:", error);
         return;
       }
 
+      console.log(`✅ Found ${data?.length || 0} suggestions for user`);
       setUserSuggestions(data || []);
     } catch (error) {
-      console.error("Erro ao buscar sugestões:", error);
+      console.error("❌ Erro ao buscar sugestões:", error);
     } finally {
       setIsLoadingSuggestions(false);
     }
   };
 
   useEffect(() => {
+    console.log("👀 useEffect triggered with accountId:", formData.accountId);
     if (formData.accountId) {
       fetchUserSuggestions();
+    } else {
+      console.log("⚠️ No accountId, clearing suggestions");
+      setUserSuggestions([]);
     }
   }, [formData.accountId]);
 
