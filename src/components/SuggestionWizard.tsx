@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, ArrowRight, FileX, AlertCircle, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import Step1SuggestionForm from "./wizard/Step1SuggestionForm";
 import Step2ContactConfirmation from "./wizard/Step2ContactConfirmation";
 import StepIndicator from "./wizard/StepIndicator";
@@ -44,6 +45,7 @@ const SuggestionWizard = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userSuggestions, setUserSuggestions] = useState<UserSuggestion[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -142,20 +144,27 @@ const SuggestionWizard = () => {
 
   const sendToN8n = async (suggestionData: any) => {
     try {
-      const n8nConfig = localStorage.getItem('n8n-config');
-      if (!n8nConfig) {
-        console.log("No n8n configuration found");
+      // Load n8n config from Supabase
+      const accountId = 'default-account';
+      
+      const { data: config, error } = await supabase
+        .from('n8n_configs')
+        .select('*')
+        .eq('account_id', accountId)
+        .eq('is_enabled', true)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error loading n8n config:", error);
         return;
       }
 
-      const config = JSON.parse(n8nConfig);
-      const isEnabled = !!config.isEnabled;
-      const webhookUrl: string | undefined = config.webhookUrl;
-
-      if (!isEnabled || !webhookUrl) {
-        console.log("n8n integration disabled or missing webhook URL", { isEnabled, webhookUrl });
+      if (!config || !config.webhook_url) {
+        console.log("n8n integration disabled or no webhook URL configured");
         return;
       }
+
+      const webhookUrl = config.webhook_url;
 
       // Validate URL format
       try {

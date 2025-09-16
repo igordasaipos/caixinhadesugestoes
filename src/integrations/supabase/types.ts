@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      n8n_configs: {
+        Row: {
+          account_id: string
+          created_at: string
+          id: string
+          is_enabled: boolean
+          last_test_result: string | null
+          last_test_time: string | null
+          updated_at: string
+          webhook_url: string | null
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          last_test_result?: string | null
+          last_test_time?: string | null
+          updated_at?: string
+          webhook_url?: string | null
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          last_test_result?: string | null
+          last_test_time?: string | null
+          updated_at?: string
+          webhook_url?: string | null
+        }
+        Relationships: []
+      }
       suggestions: {
         Row: {
           account_id: string

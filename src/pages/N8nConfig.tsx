@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, CheckCircle, XCircle, Settings, Webhook, ArrowLeft, TestTube } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 interface N8nConfig {
   webhookUrl: string;
@@ -27,27 +28,79 @@ const N8nConfig = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Load config from localStorage on mount
+  // Load config from Supabase on mount
   useEffect(() => {
-    const savedConfig = localStorage.getItem('n8n-config');
-    if (savedConfig) {
-      try {
-        const parsedConfig = JSON.parse(savedConfig);
-        setConfig(parsedConfig);
-      } catch (error) {
-        console.error('Error loading n8n config:', error);
-      }
-    }
+    loadConfig();
   }, []);
 
-  // Save config to localStorage
-  const saveConfig = (newConfig: N8nConfig) => {
+  const loadConfig = async () => {
     try {
-      localStorage.setItem('n8n-config', JSON.stringify(newConfig));
+      setIsLoading(true);
+      // Using a default account_id since we don't have auth yet
+      const accountId = 'default-account';
+      
+      const { data, error } = await supabase
+        .from('n8n_configs')
+        .select('*')
+        .eq('account_id', accountId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error loading n8n config:', error);
+        return;
+      }
+
+      if (data) {
+        setConfig({
+          webhookUrl: data.webhook_url || '',
+          isEnabled: data.is_enabled || false,
+          lastTestResult: data.last_test_result as 'success' | 'error' | undefined,
+          lastTestTime: data.last_test_time || undefined
+        });
+      }
+    } catch (error) {
+      console.error('Error loading n8n config:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Save config to Supabase
+  const saveConfig = async (newConfig: N8nConfig) => {
+    try {
+      setIsLoading(true);
+      // Using a default account_id since we don't have auth yet
+      const accountId = 'default-account';
+      
+      const configData = {
+        account_id: accountId,
+        webhook_url: newConfig.webhookUrl,
+        is_enabled: newConfig.isEnabled,
+        last_test_result: newConfig.lastTestResult,
+        last_test_time: newConfig.lastTestTime
+      };
+
+      const { error } = await supabase
+        .from('n8n_configs')
+        .upsert(configData, { 
+          onConflict: 'account_id',
+          ignoreDuplicates: false 
+        });
+
+      if (error) {
+        console.error('Error saving n8n config:', error);
+        toast({
+          title: "Erro ao salvar",
+          description: "Não foi possível salvar a configuração no banco de dados.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
       setConfig(newConfig);
       toast({
         title: "Configuração salva",
-        description: "As configurações do n8n foram salvas com sucesso.",
+        description: "As configurações do n8n foram salvas com sucesso no banco de dados.",
       });
       return true;
     } catch (error) {
@@ -58,6 +111,8 @@ const N8nConfig = () => {
         variant: "destructive",
       });
       return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -117,7 +172,7 @@ const N8nConfig = () => {
         lastTestTime: new Date().toISOString()
       };
       
-      saveConfig(newConfig);
+      await saveConfig(newConfig);
       
       toast({
         title: "Teste enviado",
@@ -131,7 +186,7 @@ const N8nConfig = () => {
         lastTestTime: new Date().toISOString()
       };
       
-      saveConfig(newConfig);
+      await saveConfig(newConfig);
       
       toast({
         title: "Erro no teste",
@@ -144,7 +199,7 @@ const N8nConfig = () => {
   };
 
   // Handle form submission
-  const handleSave = () => {
+  const handleSave = async () => {
     if (config.isEnabled && (!config.webhookUrl || !isValidUrl(config.webhookUrl))) {
       toast({
         title: "URL obrigatória",
@@ -154,7 +209,7 @@ const N8nConfig = () => {
       return;
     }
 
-    saveConfig(config);
+    await saveConfig(config);
   };
 
   return (
