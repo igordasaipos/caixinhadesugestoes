@@ -320,6 +320,12 @@ const SuggestionWizard = () => {
       console.log("=== SAVING TO SUPABASE ===");
       console.log("Form data before save:", formData);
       
+      const finalStoreId = formData.storeId || (
+        formData.visitorId && formData.tradeName
+          ? `${formData.visitorId} - ${formData.tradeName}`
+          : (formData.visitorId || "")
+      );
+      
       const dataToSave = {
         suggestion: formData.suggestion.trim(),
         visitor_id: formData.visitorId,
@@ -330,7 +336,7 @@ const SuggestionWizard = () => {
         preferred_contact_method: formData.preferredContactMethod,
         contact_value: formData.contactValue,
         contact_whatsapp: formData.contactWhatsapp,
-        store_id: formData.storeId,                  // ID da loja no formato "id_store - trade_name"
+        store_id: finalStoreId,                  // ID da loja no formato "id_store - trade_name"
       };
       
       console.log("Data being saved to Supabase:", dataToSave);

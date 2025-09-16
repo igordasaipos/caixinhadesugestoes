@@ -61,14 +61,21 @@
           var found = null;
           function traverse(o) {
             if (!o || typeof o !== 'object' || found) return;
+            for (var i = 0; i < keys.length; i++) {
+              var k = keys[i];
+              if (Object.prototype.hasOwnProperty.call(o, k)) {
+                var directVal = o[k];
+                if (directVal != null && directVal !== '') {
+                  found = directVal;
+                  return;
+                }
+              }
+            }
             for (var key in o) {
               if (!Object.prototype.hasOwnProperty.call(o, key)) continue;
               var val = o[key];
-              if (keys.indexOf(key) !== -1 && val != null && val !== '') {
-                found = val;
-                return;
-              }
               if (typeof val === 'object') traverse(val);
+              if (found) return;
             }
           }
           traverse(obj);
@@ -76,7 +83,7 @@
         }
 
         var possibleStoreIds = ['id_store', 'store_id', 'storeId', 'id', 'loja_id'];
-        var possibleTradeNames = ['trade_name', 'tradeName', 'nome_fantasia', 'nome', 'name', 'razao_social', 'nomeFantasia', 'fantasy_name'];
+        var possibleTradeNames = ['trade_name', 'tradeName', 'nome_fantasia', 'nomeFantasia', 'fantasy_name', 'corporate_name', 'razao_social'];
         var possiblePhones = ['phone_1', 'phone1', 'telefone', 'phone', 'phone_2', 'fone1', 'tel1', 'telefone1'];
 
         // Prefer deep search results; keep previously found simple values as fallback
