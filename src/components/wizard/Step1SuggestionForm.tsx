@@ -11,6 +11,7 @@ interface FormData {
   contactValue: string;
   contactWhatsapp: string;
   tradeName: string;
+  storeId: string;
 }
 
 interface Step1Props {

@@ -55,6 +55,7 @@ export type Database = {
           created_at: string
           id: string
           preferred_contact_method: string | null
+          store_id: string | null
           store_phone1: string | null
           suggestion: string
           updated_at: string
@@ -69,6 +70,7 @@ export type Database = {
           created_at?: string
           id?: string
           preferred_contact_method?: string | null
+          store_id?: string | null
           store_phone1?: string | null
           suggestion: string
           updated_at?: string
@@ -83,6 +85,7 @@ export type Database = {
           created_at?: string
           id?: string
           preferred_contact_method?: string | null
+          store_id?: string | null
           store_phone1?: string | null
           suggestion?: string
           updated_at?: string

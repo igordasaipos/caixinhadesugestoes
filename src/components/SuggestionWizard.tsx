@@ -21,6 +21,7 @@ interface FormData {
   contactValue: string;
   contactWhatsapp: string;
   tradeName: string;
+  storeId: string;
 }
 
 interface UserSuggestion {
@@ -43,6 +44,7 @@ const SuggestionWizard = () => {
     contactValue: "",
     contactWhatsapp: "",
     tradeName: "",
+    storeId: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userSuggestions, setUserSuggestions] = useState<UserSuggestion[]>([]);
@@ -66,6 +68,7 @@ const SuggestionWizard = () => {
           contactValue: "",
           contactWhatsapp: "",
           tradeName: event.data.tradeName || "",
+          storeId: event.data.storeId || "",
         };
         
         console.log("Setting form data to:", newFormData);
@@ -87,7 +90,8 @@ const SuggestionWizard = () => {
           preferredContactMethod: '' as 'email' | 'whatsapp' | '',
           contactValue: "",
           contactWhatsapp: "",
-          tradeName: "",
+          tradeName: "Loja Teste",
+          storeId: "63702 - Loja Teste",
         };
         setFormData(testFormData);
       }
@@ -211,13 +215,14 @@ const SuggestionWizard = () => {
       const dataToSave = {
         suggestion: formData.suggestion.trim(),
         visitor_id: formData.visitorId,
-        account_id: formData.accountId,
+        account_id: formData.accountId,              // ID do usuário
         user_full_name: formData.userFullName,
         user_email: formData.userEmail,
         store_phone1: formData.storePhone1,
         preferred_contact_method: formData.preferredContactMethod,
         contact_value: formData.contactValue,
         contact_whatsapp: formData.contactWhatsapp,
+        store_id: formData.storeId,                  // ID da loja no formato "id_store - trade_name"
       };
       
       console.log("Data being saved to Supabase:", dataToSave);

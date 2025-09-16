@@ -164,20 +164,18 @@
         var userData = getUserData();
         var storeData = getStoreData();
 
-        // Criar account_id no formato "id_store - trade_name"
-        var formattedAccountId = storeData.storeId && storeData.tradeName 
-          ? storeData.storeId + ' - ' + storeData.tradeName 
-          : storeData.storeId || userData.userId;
-
         // Mapear os dados para enviar ao iframe
         var dataToSend = {
           type: 'INIT_SUGGESTION_FORM',
-          accountId: formattedAccountId,       // ID da loja no formato "id_store - trade_name"
-          visitorId: storeData.storeId,        // ID da loja
-          userFullName: userData.userFullName, // Nome completo do usuário
-          userEmail: userData.userEmail,       // Email do usuário
-          storePhone1: storeData.storePhone1,  // Telefone da loja
-          tradeName: storeData.tradeName       // Nome fantasia da loja
+          accountId: userData.userId,              // ID do usuário
+          visitorId: storeData.storeId,           // ID da loja
+          userFullName: userData.userFullName,    // Nome completo do usuário
+          userEmail: userData.userEmail,          // Email do usuário
+          storePhone1: storeData.storePhone1,     // Telefone da loja
+          tradeName: storeData.tradeName,         // Nome fantasia da loja
+          storeId: storeData.storeId && storeData.tradeName 
+            ? storeData.storeId + ' - ' + storeData.tradeName 
+            : storeData.storeId                   // ID da loja no formato "id_store - trade_name"
         };
 
         console.log('Todos os dados coletados para envio:', dataToSend);

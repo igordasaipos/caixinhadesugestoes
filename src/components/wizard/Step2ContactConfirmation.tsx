@@ -14,6 +14,7 @@ interface FormData {
   contactValue: string;
   contactWhatsapp: string;
   tradeName: string;
+  storeId: string;
 }
 
 interface Step2Props {
@@ -61,7 +62,7 @@ const Step2ContactConfirmation = ({ formData, setFormData }: Step2Props) => {
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Hash className="w-4 h-4 text-muted-foreground" />
-              <span className="font-medium">ID:</span>
+              <span className="font-medium">Usuário ID:</span>
               <span>{formData.accountId}</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
