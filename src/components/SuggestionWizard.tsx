@@ -20,6 +20,7 @@ interface FormData {
   preferredContactMethod: 'email' | 'whatsapp' | '';
   contactValue: string;
   contactWhatsapp: string;
+  tradeName: string;
 }
 
 interface UserSuggestion {
@@ -41,6 +42,7 @@ const SuggestionWizard = () => {
     preferredContactMethod: '',
     contactValue: "",
     contactWhatsapp: "",
+    tradeName: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userSuggestions, setUserSuggestions] = useState<UserSuggestion[]>([]);
@@ -63,6 +65,7 @@ const SuggestionWizard = () => {
           preferredContactMethod: '' as 'email' | 'whatsapp' | '',
           contactValue: "",
           contactWhatsapp: "",
+          tradeName: event.data.tradeName || "",
         };
         
         console.log("Setting form data to:", newFormData);
@@ -84,6 +87,7 @@ const SuggestionWizard = () => {
           preferredContactMethod: '' as 'email' | 'whatsapp' | '',
           contactValue: "",
           contactWhatsapp: "",
+          tradeName: "",
         };
         setFormData(testFormData);
       }

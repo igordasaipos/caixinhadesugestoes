@@ -43,6 +43,7 @@
   function getStoreData() {
     var storeId = '';
     var storePhone1 = '';
+    var tradeName = '';
 
     try {
       var storeStorage = localStorage.getItem('ngStorage-currentStore');
@@ -55,10 +56,13 @@
         
         // Campos corretos baseados na estrutura real
         storeId = storeData.id_store || storeData.storeId || storeData.store_id || storeData.id || '';
+        tradeName = storeData.trade_name || storeData.tradeName || storeData.nome_fantasia || 
+                   storeData.nome || storeData.name || storeData.razao_social || '';
         storePhone1 = storeData.phone_1 || storeData.phone1 || storeData.telefone || storeData.phone || storeData.phone_2 || '';
         
         console.log('Extracted store data:', {
           storeId: storeId,
+          tradeName: tradeName,
           storePhone1: storePhone1
         });
       } else {
@@ -70,6 +74,7 @@
 
     return {
       storeId: storeId,
+      tradeName: tradeName,
       storePhone1: storePhone1
     };
   }
@@ -156,14 +161,20 @@
         var userData = getUserData();
         var storeData = getStoreData();
 
+        // Criar account_id no formato "id_store - trade_name"
+        var formattedAccountId = storeData.storeId && storeData.tradeName 
+          ? storeData.storeId + ' - ' + storeData.tradeName 
+          : storeData.storeId || userData.userId;
+
         // Mapear os dados para enviar ao iframe
         var dataToSend = {
           type: 'INIT_SUGGESTION_FORM',
-          accountId: userData.userId,           // ID do usuário (id_user)
+          accountId: formattedAccountId,       // ID da loja no formato "id_store - trade_name"
           visitorId: storeData.storeId,        // ID da loja (id_store)
           userFullName: userData.userFullName, // Nome completo (full_name)
           userEmail: userData.userEmail,       // Email (email)
-          storePhone1: storeData.storePhone1   // Telefone da loja (phone_1)
+          storePhone1: storeData.storePhone1,  // Telefone da loja (phone_1)
+          tradeName: storeData.tradeName       // Nome fantasia da loja
         };
 
         console.log('=== FINAL DATA TO SEND ===');

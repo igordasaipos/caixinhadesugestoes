@@ -10,6 +10,7 @@ interface FormData {
   preferredContactMethod: 'email' | 'whatsapp' | '';
   contactValue: string;
   contactWhatsapp: string;
+  tradeName: string;
 }
 
 interface Step1Props {

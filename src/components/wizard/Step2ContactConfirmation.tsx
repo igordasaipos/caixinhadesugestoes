@@ -13,6 +13,7 @@ interface FormData {
   preferredContactMethod: 'email' | 'whatsapp' | '';
   contactValue: string;
   contactWhatsapp: string;
+  tradeName: string;
 }
 
 interface Step2Props {
@@ -56,7 +57,7 @@ const Step2ContactConfirmation = ({ formData, setFormData }: Step2Props) => {
             <div className="flex items-center gap-2 text-sm">
               <Store className="w-4 h-4 text-muted-foreground" />
               <span className="font-medium">Loja:</span>
-              <span>{formData.visitorId}</span>
+              <span>{formData.tradeName || `Loja ${formData.visitorId}`}</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Hash className="w-4 h-4 text-muted-foreground" />

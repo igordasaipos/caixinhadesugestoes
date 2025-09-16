@@ -45,6 +45,7 @@
   function getStoreData() {
     var storeId = '';
     var storePhone1 = '';
+    var tradeName = '';
 
     try {
       var storeStorage = localStorage.getItem('ngStorage-currentStore');
@@ -58,12 +59,17 @@
         storeId = storeData.id_store || storeData.storeId || storeData.store_id || 
                  storeData.id || storeData.loja_id || '';
         
+        // Buscar nome da loja (trade_name)
+        tradeName = storeData.trade_name || storeData.tradeName || storeData.nome_fantasia || 
+                   storeData.nome || storeData.name || storeData.razao_social || '';
+        
         // Buscar telefone principal - várias possibilidades
         storePhone1 = storeData.phone1 || storeData.telefone || storeData.phone || 
                      storeData.telefone1 || storeData.fone1 || storeData.tel1 || '';
         
         console.log('Dados da loja extraídos:', {
           storeId: storeId,
+          tradeName: tradeName,
           storePhone1: storePhone1
         });
       }
@@ -73,6 +79,7 @@
 
     return {
       storeId: storeId,
+      tradeName: tradeName,
       storePhone1: storePhone1
     };
   }
@@ -157,14 +164,20 @@
         var userData = getUserData();
         var storeData = getStoreData();
 
+        // Criar account_id no formato "id_store - trade_name"
+        var formattedAccountId = storeData.storeId && storeData.tradeName 
+          ? storeData.storeId + ' - ' + storeData.tradeName 
+          : storeData.storeId || userData.userId;
+
         // Mapear os dados para enviar ao iframe
         var dataToSend = {
           type: 'INIT_SUGGESTION_FORM',
-          accountId: userData.userId,           // ID do usuário
+          accountId: formattedAccountId,       // ID da loja no formato "id_store - trade_name"
           visitorId: storeData.storeId,        // ID da loja
           userFullName: userData.userFullName, // Nome completo do usuário
           userEmail: userData.userEmail,       // Email do usuário
-          storePhone1: storeData.storePhone1   // Telefone da loja
+          storePhone1: storeData.storePhone1,  // Telefone da loja
+          tradeName: storeData.tradeName       // Nome fantasia da loja
         };
 
         console.log('Todos os dados coletados para envio:', dataToSend);
