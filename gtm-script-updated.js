@@ -122,8 +122,8 @@
     }
 
     return {
-      storeId: storeId,
-      tradeName: tradeName,
+      storeId: storeId || 'N/A',
+      tradeName: tradeName || 'Nome não encontrado',
       storePhone1: storePhone1
     };
   }

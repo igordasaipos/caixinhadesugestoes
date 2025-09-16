@@ -85,8 +85,8 @@ const SuggestionWizard = () => {
           contactWhatsapp: "",
           contactEmail: "",
           tradeName: storeData.trade_name || storeData.tradeName || storeData.nome_fantasia || storeData.nome || storeData.name || "",
-          storeId: (storeData.id_store || storeData.storeId || storeData.store_id || storeData.id || "") + 
-                  " - " + (storeData.trade_name || storeData.tradeName || storeData.nome_fantasia || storeData.nome || storeData.name || ""),
+          storeId: ((storeData.id_store || storeData.storeId || storeData.store_id || storeData.id || 'N/A') + 
+                   " - " + (storeData.trade_name || storeData.tradeName || storeData.nome_fantasia || storeData.nome || storeData.name || 'Nome não encontrado')),
         };
 
         console.log("✅ Fallback data extracted:", fallbackData);

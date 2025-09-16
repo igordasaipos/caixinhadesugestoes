@@ -71,11 +71,6 @@ const Step2ContactConfirmation = ({ formData, setFormData }: Step2Props) => {
               <span>{formData.tradeName || `Loja ${formData.visitorId}`}</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <Hash className="w-4 h-4 text-muted-foreground" />
-              <span className="font-medium">Usuário ID:</span>
-              <span>{formData.accountId}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
               <User className="w-4 h-4 text-muted-foreground" />
               <span className="font-medium">Nome:</span>
               <span>{formData.userFullName}</span>
