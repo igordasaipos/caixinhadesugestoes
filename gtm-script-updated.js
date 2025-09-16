@@ -49,32 +49,76 @@
 
     try {
       var storeStorage = localStorage.getItem('ngStorage-currentStore');
-      console.log('ngStorage-currentStore conteúdo completo:', storeStorage);
+      console.log('=== DEBUG STORE DATA ===');
+      console.log('ngStorage-currentStore exists:', !!storeStorage);
+      console.log('ngStorage-currentStore raw content:', storeStorage);
       
       if (storeStorage) {
         var storeData = JSON.parse(storeStorage);
-        console.log('storeData parsed:', storeData);
+        console.log('Store data structure (complete):', storeData);
+        console.log('All available store data keys:', Object.keys(storeData));
         
-        // Buscar ID da loja
-        storeId = storeData.id_store || storeData.storeId || storeData.store_id || 
-                 storeData.id || storeData.loja_id || '';
+        // Lista completa de possíveis campos para ID da loja
+        var possibleStoreIds = ['id_store', 'storeId', 'store_id', 'id', 'loja_id'];
+        console.log('Checking for store ID in fields:', possibleStoreIds);
+        for (var i = 0; i < possibleStoreIds.length; i++) {
+          var field = possibleStoreIds[i];
+          var value = storeData[field];
+          console.log('Field "' + field + '":', value);
+          if (value && !storeId) {
+            storeId = value;
+            console.log('✅ Using store ID from field:', field, '=', storeId);
+          }
+        }
         
-        // Buscar nome da loja (trade_name)
-        tradeName = storeData.trade_name || storeData.tradeName || storeData.nome_fantasia || 
-                   storeData.nome || storeData.name || storeData.razao_social || '';
+        // Lista completa de possíveis campos para nome da loja
+        var possibleTradeNames = ['trade_name', 'tradeName', 'nome_fantasia', 'nome', 'name', 'razao_social', 'nomeFantasia', 'fantasy_name'];
+        console.log('Checking for trade name in fields:', possibleTradeNames);
+        for (var j = 0; j < possibleTradeNames.length; j++) {
+          var nameField = possibleTradeNames[j];
+          var nameValue = storeData[nameField];
+          console.log('Field "' + nameField + '":', nameValue);
+          if (nameValue && !tradeName) {
+            tradeName = nameValue;
+            console.log('✅ Using trade name from field:', nameField, '=', tradeName);
+          }
+        }
         
-        // Buscar telefone principal - várias possibilidades
-        storePhone1 = storeData.phone1 || storeData.telefone || storeData.phone || 
-                     storeData.telefone1 || storeData.fone1 || storeData.tel1 || '';
+        // Lista completa de possíveis campos para telefone
+        var possiblePhones = ['phone_1', 'phone1', 'telefone', 'phone', 'phone_2', 'fone1', 'tel1', 'telefone1'];
+        console.log('Checking for phone in fields:', possiblePhones);
+        for (var k = 0; k < possiblePhones.length; k++) {
+          var phoneField = possiblePhones[k];
+          var phoneValue = storeData[phoneField];
+          console.log('Field "' + phoneField + '":', phoneValue);
+          if (phoneValue && !storePhone1) {
+            storePhone1 = phoneValue;
+            console.log('✅ Using phone from field:', phoneField, '=', storePhone1);
+          }
+        }
         
-        console.log('Dados da loja extraídos:', {
-          storeId: storeId,
-          tradeName: tradeName,
-          storePhone1: storePhone1
-        });
+        console.log('=== FINAL STORE DATA EXTRACTED ===');
+        console.log('Store ID:', storeId);
+        console.log('Trade Name:', tradeName);
+        console.log('Store Phone:', storePhone1);
+        
+        // Alertas para campos não encontrados
+        if (!storeId) {
+          console.warn('⚠️ No store ID found in any of the expected fields!');
+        }
+        if (!tradeName) {
+          console.warn('⚠️ No trade name found in any of the expected fields!');
+          console.warn('Available keys were:', Object.keys(storeData));
+        }
+        if (!storePhone1) {
+          console.warn('⚠️ No phone found in any of the expected fields!');
+        }
+      } else {
+        console.error('❌ ngStorage-currentStore not found in localStorage');
+        console.log('Available localStorage keys:', Object.keys(localStorage));
       }
     } catch (e) {
-      console.log('Erro ao acessar ngStorage-currentStore:', e);
+      console.error('❌ Error accessing ngStorage-currentStore:', e);
     }
 
     return {

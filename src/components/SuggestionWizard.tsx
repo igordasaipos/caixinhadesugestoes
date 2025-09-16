@@ -51,11 +51,69 @@ const SuggestionWizard = () => {
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const { toast } = useToast();
 
+  // Função para tentar acessar dados diretamente do localStorage (fallback)
+  const getDataFromLocalStorage = () => {
+    try {
+      console.log("🔍 Fallback: Trying to access localStorage directly...");
+      
+      // Tentar acessar dados do usuário
+      const userStorage = localStorage.getItem('ngStorage-user');
+      const storeStorage = localStorage.getItem('ngStorage-currentStore');
+      
+      console.log("📦 LocalStorage contents:", {
+        hasUserData: !!userStorage,
+        hasStoreData: !!storeStorage,
+        userData: userStorage ? JSON.parse(userStorage) : null,
+        storeData: storeStorage ? JSON.parse(storeStorage) : null
+      });
+
+      if (userStorage && storeStorage) {
+        const userData = JSON.parse(userStorage);
+        const storeData = JSON.parse(storeStorage);
+        
+        const fallbackData = {
+          suggestion: "",
+          visitorId: storeData.id_store || storeData.storeId || storeData.store_id || storeData.id || "",
+          accountId: userData.id_user || userData.userId || userData.user_id || userData.id || "",
+          userFullName: userData.full_name || userData.fullName || userData.name || userData.first_name || "",
+          userEmail: userData.email || userData.login || userData.user_email || "",
+          storePhone1: storeData.phone_1 || storeData.phone1 || storeData.telefone || storeData.phone || "",
+          preferredContactMethod: '' as 'email' | 'whatsapp' | '',
+          contactValue: "",
+          contactWhatsapp: "",
+          tradeName: storeData.trade_name || storeData.tradeName || storeData.nome_fantasia || storeData.nome || storeData.name || "",
+          storeId: (storeData.id_store || storeData.storeId || storeData.store_id || storeData.id || "") + 
+                  " - " + (storeData.trade_name || storeData.tradeName || storeData.nome_fantasia || storeData.nome || storeData.name || ""),
+        };
+
+        console.log("✅ Fallback data extracted:", fallbackData);
+        return fallbackData;
+      } else {
+        console.log("❌ Required localStorage data not found");
+        return null;
+      }
+    } catch (error) {
+      console.error("❌ Error accessing localStorage:", error);
+      return null;
+    }
+  };
+
   useEffect(() => {
+    let dataReceived = false;
+    
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === "INIT_SUGGESTION_FORM") {
-        console.log("=== REACT RECEIVED DATA ===");
+        dataReceived = true;
+        console.log("=== REACT RECEIVED DATA VIA POSTMESSAGE ===");
         console.log("Raw event data:", event.data);
+        console.log("Event origin:", event.origin);
+        console.log("Data validation:", {
+          hasAccountId: !!event.data.accountId,
+          hasVisitorId: !!event.data.visitorId,
+          hasUserName: !!event.data.userFullName,
+          hasTradeName: !!event.data.tradeName,
+          tradeNameValue: event.data.tradeName
+        });
         
         const newFormData = {
           suggestion: "",
@@ -71,40 +129,60 @@ const SuggestionWizard = () => {
           storeId: event.data.storeId || "",
         };
         
-        console.log("Setting form data to:", newFormData);
+        console.log("✅ Setting form data from postMessage:", newFormData);
         setFormData(newFormData);
       }
     };
 
-    // FOR TESTING: Simulate data if no message received within 2 seconds
-    const testDataTimer = setTimeout(() => {
-      if (!formData.accountId) {
-        console.log("🧪 No data received, setting test data");
-        const testFormData = {
-          suggestion: "",
-          visitorId: "63702",
-          accountId: "88251",
-          userFullName: "Igor Nascimento",
-          userEmail: "igor.nascimento@saipos.com",
-          storePhone1: "54992400194",
-          preferredContactMethod: '' as 'email' | 'whatsapp' | '',
-          contactValue: "",
-          contactWhatsapp: "",
-          tradeName: "Loja Teste",
-          storeId: "63702 - Loja Teste",
-        };
-        setFormData(testFormData);
+    // Fallback timer - mais tempo e melhor lógica
+    const fallbackTimer = setTimeout(() => {
+      if (!dataReceived && !formData.accountId) {
+        console.log("⚠️ No postMessage received after 5 seconds, trying localStorage fallback...");
+        
+        const fallbackData = getDataFromLocalStorage();
+        
+        if (fallbackData && fallbackData.accountId && fallbackData.tradeName) {
+          console.log("✅ Using fallback data from localStorage");
+          setFormData(fallbackData);
+        } else {
+          console.log("❌ No valid data found in localStorage either");
+          // Em ambiente de desenvolvimento, mostrar dados de teste
+          if (window.location.hostname === 'localhost' || window.location.hostname.includes('lovable')) {
+            console.log("🧪 Development environment detected, using test data");
+            const testFormData = {
+              suggestion: "",
+              visitorId: "63702",
+              accountId: "88251",
+              userFullName: "Igor Nascimento",
+              userEmail: "igor.nascimento@saipos.com",
+              storePhone1: "54992400194",
+              preferredContactMethod: '' as 'email' | 'whatsapp' | '',
+              contactValue: "",
+              contactWhatsapp: "",
+              tradeName: "Loja Teste",
+              storeId: "63702 - Loja Teste",
+            };
+            setFormData(testFormData);
+          } else {
+            console.log("🚫 Production environment - no test data will be used");
+          }
+        }
+      } else if (dataReceived) {
+        console.log("✅ Data was received via postMessage - no fallback needed");
+      } else if (formData.accountId) {
+        console.log("✅ Form data already available - no fallback needed");
       }
-    }, 2000);
+    }, 5000);
 
     window.addEventListener("message", handleMessage);
     
     // Sinalizar que estamos prontos
+    console.log("📤 Sending READY signal to parent window");
     window.parent?.postMessage({ type: "SUGGESTION_FORM_READY" }, "*");
 
     return () => {
       window.removeEventListener("message", handleMessage);
-      clearTimeout(testDataTimer);
+      clearTimeout(fallbackTimer);
     };
   }, []);
 
@@ -292,6 +370,20 @@ const SuggestionWizard = () => {
   // Check if we have any user data
   const hasUserData = formData.accountId || formData.userFullName || formData.userEmail;
 
+  // Debug information for production troubleshooting
+  const debugInfo = {
+    hasAccountId: !!formData.accountId,
+    hasUserName: !!formData.userFullName,
+    hasTradeName: !!formData.tradeName,
+    accountIdValue: formData.accountId,
+    tradeNameValue: formData.tradeName,
+    storeIdValue: formData.storeId,
+    isLocalhost: window.location.hostname === 'localhost' || window.location.hostname.includes('lovable'),
+  };
+
+  // Show debug panel in development or when no data is available
+  const showDebugInfo = debugInfo.isLocalhost || !hasUserData;
+
   // Show empty state if no user data is available
   if (!hasUserData) {
     return (
@@ -316,6 +408,30 @@ const SuggestionWizard = () => {
                 </div>
               </div>
             </div>
+
+            {/* Debug Info Panel */}
+            {showDebugInfo && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4 text-left">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-medium mb-2 text-red-700">Debug Information:</p>
+                    <div className="text-xs text-red-600 space-y-1">
+                      <div>• Has Account ID: {debugInfo.hasAccountId ? '✅' : '❌'}</div>
+                      <div>• Has User Name: {debugInfo.hasUserName ? '✅' : '❌'}</div>
+                      <div>• Has Trade Name: {debugInfo.hasTradeName ? '✅' : '❌'}</div>
+                      <div>• Account ID: {debugInfo.accountIdValue || 'Vazio'}</div>
+                      <div>• Trade Name: {debugInfo.tradeNameValue || 'Vazio'}</div>
+                      <div>• Store ID: {debugInfo.storeIdValue || 'Vazio'}</div>
+                      <div>• Environment: {debugInfo.isLocalhost ? 'Development' : 'Production'}</div>
+                    </div>
+                    <p className="text-xs text-red-600 mt-2">
+                      Verifique o console do navegador para mais detalhes sobre localStorage e postMessage.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
