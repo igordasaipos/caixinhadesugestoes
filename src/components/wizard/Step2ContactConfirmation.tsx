@@ -13,6 +13,7 @@ interface FormData {
   preferredContactMethod: 'email' | 'whatsapp' | '';
   contactValue: string;
   contactWhatsapp: string;
+  contactEmail: string;
   tradeName: string;
   storeId: string;
 }
@@ -27,7 +28,7 @@ const Step2ContactConfirmation = ({ formData, setFormData }: Step2Props) => {
     let contactValue = '';
     
     if (method === 'email') {
-      contactValue = formData.userEmail;
+      contactValue = formData.contactEmail || formData.userEmail;
     } else if (method === 'whatsapp') {
       contactValue = formData.storePhone1;
     }
@@ -36,7 +37,16 @@ const Step2ContactConfirmation = ({ formData, setFormData }: Step2Props) => {
       ...prev,
       preferredContactMethod: method,
       contactValue: contactValue,
-      contactWhatsapp: method === 'whatsapp' ? contactValue : ''
+      contactWhatsapp: method === 'whatsapp' ? contactValue : '',
+      contactEmail: method === 'email' ? contactValue : prev.contactEmail
+    }));
+  };
+
+  const handleEmailChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      contactEmail: value,
+      contactValue: value
     }));
   };
 
@@ -89,14 +99,34 @@ const Step2ContactConfirmation = ({ formData, setFormData }: Step2Props) => {
       <div>
         <h4 className="font-medium mb-3">Como você prefere receber atualizações?</h4>
         <div className="space-y-3">
-          <Button
-            variant={formData.preferredContactMethod === 'email' ? 'default' : 'outline'}
-            onClick={() => handleContactMethodChange('email')}
-            className="w-full justify-start"
-          >
-            <Mail className="w-4 h-4 mr-2" />
-            Email: {formData.userEmail}
-          </Button>
+          <div className="space-y-2">
+            <Button
+              variant={formData.preferredContactMethod === 'email' ? 'default' : 'outline'}
+              onClick={() => handleContactMethodChange('email')}
+              className="w-full justify-start"
+            >
+              <Mail className="w-4 h-4 mr-2" />
+              Email
+            </Button>
+            
+            {formData.preferredContactMethod === 'email' && (
+              <div className="pl-4">
+                <label className="text-sm font-medium mb-1 block">
+                  Email para atualizações:
+                </label>
+                <Input
+                  placeholder="Ex: seu.email@exemplo.com"
+                  value={formData.contactEmail}
+                  onChange={(e) => handleEmailChange(e.target.value)}
+                  className="text-sm"
+                  type="email"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Digite o email onde você deseja receber as atualizações da sua sugestão
+                </p>
+              </div>
+            )}
+          </div>
           
           <div className="space-y-2">
             <Button

@@ -20,6 +20,7 @@ interface FormData {
   preferredContactMethod: 'email' | 'whatsapp' | '';
   contactValue: string;
   contactWhatsapp: string;
+  contactEmail: string;
   tradeName: string;
   storeId: string;
 }
@@ -43,6 +44,7 @@ const SuggestionWizard = () => {
     preferredContactMethod: '',
     contactValue: "",
     contactWhatsapp: "",
+    contactEmail: "",
     tradeName: "",
     storeId: "",
   });
@@ -81,6 +83,7 @@ const SuggestionWizard = () => {
           preferredContactMethod: '' as 'email' | 'whatsapp' | '',
           contactValue: "",
           contactWhatsapp: "",
+          contactEmail: "",
           tradeName: storeData.trade_name || storeData.tradeName || storeData.nome_fantasia || storeData.nome || storeData.name || "",
           storeId: (storeData.id_store || storeData.storeId || storeData.store_id || storeData.id || "") + 
                   " - " + (storeData.trade_name || storeData.tradeName || storeData.nome_fantasia || storeData.nome || storeData.name || ""),
@@ -125,6 +128,7 @@ const SuggestionWizard = () => {
           preferredContactMethod: '' as 'email' | 'whatsapp' | '',
           contactValue: "",
           contactWhatsapp: "",
+          contactEmail: "",
           tradeName: event.data.tradeName || "",
           storeId: event.data.storeId || "",
         };
@@ -161,6 +165,7 @@ const SuggestionWizard = () => {
               preferredContactMethod: '' as 'email' | 'whatsapp' | '',
               contactValue: "",
               contactWhatsapp: "",
+              contactEmail: "",
               tradeName: "Loja Teste",
               storeId: "63702 - Loja Teste",
             };
