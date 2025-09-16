@@ -202,43 +202,82 @@
 
   // Função para configurar a comunicação postMessage
   function setupPostMessage() {
-    function handleMessage(event) {
+    console.log('GTM: Setting up postMessage handler');
+    window.addEventListener('message', function(event) {
+      console.log('GTM: Received message from iframe:', event.data);
+      
       if (event.data && event.data.type === 'SUGGESTION_FORM_READY') {
-        // Buscar dados do usuário e da loja
-        var userData = getUserData();
-        var storeData = getStoreData();
+        console.log('GTM: Iframe is ready, waiting for data...');
+        waitForDataThenSend(event.source);
+      }
+    });
+  }
 
-        // Mapear os dados para enviar ao iframe
+  function waitForDataThenSend(iframeSource, maxWaitMs, intervalMs) {
+    maxWaitMs = maxWaitMs || 10000;
+    intervalMs = intervalMs || 300;
+    
+    console.log('GTM: Starting waitForDataThenSend with maxWait:', maxWaitMs, 'ms');
+    
+    var startTime = Date.now();
+    var pollInterval = setInterval(function() {
+      var elapsed = Date.now() - startTime;
+      console.log('GTM: Polling for data... elapsed:', elapsed, 'ms');
+      
+      var userData = getUserData();
+      var storeData = getStoreData();
+      
+      // Check if we have the minimum required data
+      var hasRequiredUserData = userData.userId;
+      var hasRequiredStoreData = storeData.storeId && storeData.tradeName;
+      
+      console.log('GTM: Data check:', { 
+        hasRequiredUserData: hasRequiredUserData, 
+        hasRequiredStoreData: hasRequiredStoreData,
+        userData: userData,
+        storeData: storeData 
+      });
+      
+      if (hasRequiredUserData && hasRequiredStoreData) {
+        console.log('GTM: ✅ All required data found! Sending to iframe...');
+        clearInterval(pollInterval);
+        
         var dataToSend = {
           type: 'INIT_SUGGESTION_FORM',
-          accountId: userData.userId,              // ID do usuário
-          visitorId: storeData.storeId,           // ID da loja
-          userFullName: userData.userFullName,    // Nome completo do usuário
-          userEmail: userData.userEmail,          // Email do usuário
-          storePhone1: storeData.storePhone1,     // Telefone da loja
-          tradeName: storeData.tradeName,         // Nome fantasia da loja
-          storeId: storeData.storeId && storeData.tradeName 
-            ? storeData.storeId + ' - ' + storeData.tradeName 
-            : storeData.storeId                   // ID da loja no formato "id_store - trade_name"
+          accountId: userData.userId,
+          visitorId: storeData.storeId,
+          userFullName: userData.userFullName,
+          userEmail: userData.userEmail,
+          storePhone1: storeData.storePhone1,
+          tradeName: storeData.tradeName,
+          storeId: storeData.storeId + " - " + storeData.tradeName
         };
-
-        console.log('Todos os dados coletados para envio:', dataToSend);
-
-        // Enviar dados para o iframe
-        var iframe = document.getElementById('suggestion-iframe');
-        if (iframe && iframe.contentWindow) {
-          iframe.contentWindow.postMessage(dataToSend, '*');
-          console.log('Dados enviados para iframe com sucesso!');
-        }
+        
+        console.log('GTM: Final data being sent:', dataToSend);
+        iframeSource.postMessage(dataToSend, '*');
+        return;
       }
-    }
-
-    // Adicionar listener
-    if (window.addEventListener) {
-      window.addEventListener('message', handleMessage, false);
-    } else if (window.attachEvent) {
-      window.attachEvent('onmessage', handleMessage);
-    }
+      
+      if (elapsed >= maxWaitMs) {
+        console.log('GTM: ❌ Timeout reached, sending whatever data we have...');
+        clearInterval(pollInterval);
+        
+        var dataToSend = {
+          type: 'INIT_SUGGESTION_FORM',
+          accountId: userData.userId || '',
+          visitorId: storeData.storeId || '',
+          userFullName: userData.userFullName || '',
+          userEmail: userData.userEmail || '',
+          storePhone1: storeData.storePhone1 || '',
+          tradeName: storeData.tradeName || '',
+          storeId: (storeData.storeId || '') + " - " + (storeData.tradeName || '')
+        };
+        
+        console.log('GTM: Fallback data being sent:', dataToSend);
+        iframeSource.postMessage(dataToSend, '*');
+        return;
+      }
+    }, intervalMs);
   }
 
   // Criar botão para abrir modal (opcional)

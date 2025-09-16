@@ -134,20 +134,22 @@ const SuggestionWizard = () => {
       }
     };
 
-    // Fallback timer - mais tempo e melhor lógica
+    // Fallback timer - apenas para desenvolvimento/debug
     const fallbackTimer = setTimeout(() => {
       if (!dataReceived && !formData.accountId) {
         console.log("⚠️ No postMessage received after 5 seconds, trying localStorage fallback...");
         
-        const fallbackData = getDataFromLocalStorage();
-        
-        if (fallbackData && fallbackData.accountId && fallbackData.tradeName) {
-          console.log("✅ Using fallback data from localStorage");
-          setFormData(fallbackData);
-        } else {
-          console.log("❌ No valid data found in localStorage either");
-          // Em ambiente de desenvolvimento, mostrar dados de teste
-          if (window.location.hostname === 'localhost' || window.location.hostname.includes('lovable')) {
+        // Apenas tentar localStorage em desenvolvimento/debug
+        if (window.location.hostname === 'localhost' || 
+            window.location.search.includes('debug=1') ||
+            import.meta.env.MODE === 'development') {
+          
+          const fallbackData = getDataFromLocalStorage();
+          
+          if (fallbackData && fallbackData.accountId && fallbackData.tradeName) {
+            console.log("✅ Using fallback data from localStorage (DEV MODE)");
+            setFormData(fallbackData);
+          } else {
             console.log("🧪 Development environment detected, using test data");
             const testFormData = {
               suggestion: "",
@@ -163,9 +165,10 @@ const SuggestionWizard = () => {
               storeId: "63702 - Loja Teste",
             };
             setFormData(testFormData);
-          } else {
-            console.log("🚫 Production environment - no test data will be used");
           }
+        } else {
+          console.log("🚫 Production environment - no test data or localStorage fallback will be used");
+          console.log("💡 Check if GTM script is properly sending postMessage with INIT_SUGGESTION_FORM");
         }
       } else if (dataReceived) {
         console.log("✅ Data was received via postMessage - no fallback needed");
@@ -283,6 +286,20 @@ const SuggestionWizard = () => {
 
   const handleSubmit = async () => {
     if (!formData.suggestion.trim() || !formData.preferredContactMethod) return;
+    
+    // Prevenir envio com dados de teste em produção
+    if (formData.tradeName === "Loja Teste" && 
+        window.location.hostname !== 'localhost' && 
+        !window.location.search.includes('debug=1') &&
+        import.meta.env.MODE !== 'development') {
+      console.error("🚫 Cannot submit with test data in production environment");
+      toast({
+        title: "Erro",
+        description: "Dados de teste não podem ser enviados em produção. Recarregue a página.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsSubmitting(true);
 
