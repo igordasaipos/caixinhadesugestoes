@@ -149,26 +149,38 @@ const SuggestionWizard = () => {
       }
 
       const config = JSON.parse(n8nConfig);
-      if (!config.isActive || !config.webhookUrl) {
-        console.log("n8n integration not active or no webhook URL");
+      const isEnabled = !!config.isEnabled;
+      const webhookUrl: string | undefined = config.webhookUrl;
+
+      if (!isEnabled || !webhookUrl) {
+        console.log("n8n integration disabled or missing webhook URL", { isEnabled, webhookUrl });
         return;
       }
 
-      console.log("Sending to n8n:", suggestionData);
+      // Validate URL format
+      try {
+        new URL(webhookUrl);
+      } catch {
+        console.error("Invalid n8n webhook URL:", webhookUrl);
+        return;
+      }
+
+      if (webhookUrl.includes('/webhook-test/')) {
+        console.warn("n8n test URL detected. Live submissions may not trigger the workflow. Use the production '/webhook/' URL.");
+      }
+      console.log("Sending to n8n:", { webhookUrl, payload: suggestionData });
       
-      const response = await fetch(config.webhookUrl, {
+      const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        mode: 'no-cors',
         body: JSON.stringify(suggestionData),
       });
 
-      if (response.ok) {
-        console.log("Successfully sent to n8n");
-      } else {
-        console.error("Failed to send to n8n:", response.statusText);
-      }
+      // In no-cors mode we can't inspect the response; assume it was sent.
+      console.log("n8n request sent (no-cors). Verify receipt in your n8n workflow history.");
     } catch (error) {
       console.error("Error sending to n8n:", error);
     }
