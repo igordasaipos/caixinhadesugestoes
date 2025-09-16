@@ -58,44 +58,35 @@
         console.log('Store data structure (complete):', storeData);
         console.log('All available store data keys:', Object.keys(storeData));
         
-        // Lista completa de possíveis campos para ID da loja
-        var possibleStoreIds = ['id_store', 'storeId', 'store_id', 'id', 'loja_id'];
-        console.log('Checking for store ID in fields:', possibleStoreIds);
-        for (var i = 0; i < possibleStoreIds.length; i++) {
-          var field = possibleStoreIds[i];
-          var value = storeData[field];
-          console.log('Field "' + field + '":', value);
-          if (value && !storeId) {
-            storeId = value;
-            console.log('✅ Using store ID from field:', field, '=', storeId);
+        // Deep search across nested objects for store fields
+        function deepFind(obj, keys) {
+          var found = null;
+          function traverse(o) {
+            if (!o || typeof o !== 'object' || found) return;
+            for (var key in o) {
+              if (!Object.prototype.hasOwnProperty.call(o, key)) continue;
+              var val = o[key];
+              if (keys.indexOf(key) !== -1 && val != null && val !== '') {
+                found = val;
+                return;
+              }
+              if (typeof val === 'object') traverse(val);
+            }
           }
+          traverse(obj);
+          return found;
         }
-        
-        // Lista completa de possíveis campos para nome da loja
+
+        var possibleStoreIds = ['id_store', 'store_id', 'storeId', 'id', 'loja_id'];
         var possibleTradeNames = ['trade_name', 'tradeName', 'nome_fantasia', 'nome', 'name', 'razao_social', 'nomeFantasia', 'fantasy_name'];
-        console.log('Checking for trade name in fields:', possibleTradeNames);
-        for (var j = 0; j < possibleTradeNames.length; j++) {
-          var nameField = possibleTradeNames[j];
-          var nameValue = storeData[nameField];
-          console.log('Field "' + nameField + '":', nameValue);
-          if (nameValue && !tradeName) {
-            tradeName = nameValue;
-            console.log('✅ Using trade name from field:', nameField, '=', tradeName);
-          }
-        }
-        
-        // Lista completa de possíveis campos para telefone
         var possiblePhones = ['phone_1', 'phone1', 'telefone', 'phone', 'phone_2', 'fone1', 'tel1', 'telefone1'];
-        console.log('Checking for phone in fields:', possiblePhones);
-        for (var k = 0; k < possiblePhones.length; k++) {
-          var phoneField = possiblePhones[k];
-          var phoneValue = storeData[phoneField];
-          console.log('Field "' + phoneField + '":', phoneValue);
-          if (phoneValue && !storePhone1) {
-            storePhone1 = phoneValue;
-            console.log('✅ Using phone from field:', phoneField, '=', storePhone1);
-          }
-        }
+
+        // Prefer deep search results; keep previously found simple values as fallback
+        storeId = deepFind(storeData, possibleStoreIds) || storeId;
+        tradeName = deepFind(storeData, possibleTradeNames) || tradeName;
+        storePhone1 = deepFind(storeData, possiblePhones) || storePhone1;
+
+
         
         console.log('=== FINAL STORE DATA EXTRACTED ===');
         console.log('Store ID:', storeId);

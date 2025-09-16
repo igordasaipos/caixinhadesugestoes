@@ -118,6 +118,14 @@ const SuggestionWizard = () => {
           tradeNameValue: event.data.tradeName
         });
         
+        // Normalize incoming data and derive tradeName from storeId when needed
+        let incomingTradeName = event.data.tradeName || "";
+        let incomingStoreId = event.data.storeId || "";
+        if (!incomingTradeName && typeof incomingStoreId === 'string' && incomingStoreId.includes(' - ')) {
+          const parts = incomingStoreId.split(' - ');
+          if (parts[1]) incomingTradeName = parts.slice(1).join(' - ').trim();
+        }
+        
         const newFormData = {
           suggestion: "",
           visitorId: event.data.visitorId || "",
@@ -129,8 +137,8 @@ const SuggestionWizard = () => {
           contactValue: "",
           contactWhatsapp: "",
           contactEmail: "",
-          tradeName: event.data.tradeName || "",
-          storeId: event.data.storeId || "",
+          tradeName: incomingTradeName,
+          storeId: incomingStoreId,
         };
         
         console.log("✅ Setting form data from postMessage:", newFormData);
