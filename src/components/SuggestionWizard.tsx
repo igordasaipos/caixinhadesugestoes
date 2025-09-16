@@ -398,8 +398,8 @@ const SuggestionWizard = () => {
     isLocalhost: window.location.hostname === 'localhost' || window.location.hostname.includes('lovable'),
   };
 
-  // Show debug panel in development or when no data is available
-  const showDebugInfo = debugInfo.isLocalhost || !hasUserData;
+  // Show debug panel always
+  const showDebugInfo = true;
 
   // Show empty state if no user data is available
   if (!hasUserData) {
