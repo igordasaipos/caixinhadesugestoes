@@ -1,7 +1,7 @@
-import SuggestionForm from "@/components/SuggestionForm";
+import SuggestionWizard from "@/components/SuggestionWizard";
 
 const Index = () => {
-  return <SuggestionForm />;
+  return <SuggestionWizard />;
 };
 
 export default Index;

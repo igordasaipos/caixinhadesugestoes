@@ -17,8 +17,11 @@ export type Database = {
       suggestions: {
         Row: {
           account_id: string
+          contact_value: string | null
+          contact_whatsapp: string | null
           created_at: string
           id: string
+          preferred_contact_method: string | null
           store_phone1: string | null
           suggestion: string
           updated_at: string
@@ -28,8 +31,11 @@ export type Database = {
         }
         Insert: {
           account_id: string
+          contact_value?: string | null
+          contact_whatsapp?: string | null
           created_at?: string
           id?: string
+          preferred_contact_method?: string | null
           store_phone1?: string | null
           suggestion: string
           updated_at?: string
@@ -39,8 +45,11 @@ export type Database = {
         }
         Update: {
           account_id?: string
+          contact_value?: string | null
+          contact_whatsapp?: string | null
           created_at?: string
           id?: string
+          preferred_contact_method?: string | null
           store_phone1?: string | null
           suggestion?: string
           updated_at?: string
