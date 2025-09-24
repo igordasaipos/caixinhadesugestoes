@@ -352,23 +352,32 @@ const SuggestionWizard = () => {
       
       console.log("✅ Successfully saved to Supabase:", data);
 
-      // Send to n8n
+      // Send to n8n - Complete user data
       const n8nPayload = {
         suggestion: formData.suggestion,
         user: {
           id: formData.accountId,
+          visitor_id: formData.visitorId,
           name: formData.userFullName,
           email: formData.userEmail
         },
         store: {
           id: formData.visitorId,
-          phone: formData.storePhone1
+          store_id: formData.storeId,
+          name: formData.tradeName,
+          phone: formData.storePhone1,
+          full_store_id: finalStoreId
         },
-        contact_preference: {
-          method: formData.preferredContactMethod,
-          value: formData.contactValue
+        contact_preferences: {
+          preferred_method: formData.preferredContactMethod,
+          contact_value: formData.contactValue,
+          email: formData.userEmail,
+          whatsapp: formData.contactWhatsapp
         },
-        timestamp: new Date().toISOString()
+        submission_info: {
+          timestamp: new Date().toISOString(),
+          source: 'suggestion_box_form'
+        }
       };
 
       await sendToN8n(n8nPayload);
