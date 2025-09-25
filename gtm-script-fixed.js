@@ -246,7 +246,7 @@
           userEmail: userData.userEmail,
           storePhone1: storeData.storePhone1,
           tradeName: storeData.tradeName,
-          storeId: storeData.storeId + " - " + storeData.tradeName
+          storeId: storeData.storeId
         };
         
         console.log('GTM: Final data being sent:', dataToSend);
@@ -266,7 +266,7 @@
           userEmail: userData.userEmail || '',
           storePhone1: storeData.storePhone1 || '',
           tradeName: storeData.tradeName || '',
-          storeId: (storeData.storeId || '') + " - " + (storeData.tradeName || '')
+          storeId: storeData.storeId || ''
         };
         
         console.log('GTM: Fallback data being sent:', dataToSend);

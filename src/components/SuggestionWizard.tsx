@@ -85,8 +85,7 @@ const SuggestionWizard = () => {
           contactWhatsapp: "",
           contactEmail: "",
           tradeName: storeData.trade_name || storeData.tradeName || storeData.nome_fantasia || storeData.nome || storeData.name || "",
-          storeId: ((storeData.id_store || storeData.storeId || storeData.store_id || storeData.id || 'N/A') + 
-                   " - " + (storeData.trade_name || storeData.tradeName || storeData.nome_fantasia || storeData.nome || storeData.name || 'Nome não encontrado')),
+          storeId: storeData.id_store || storeData.storeId || storeData.store_id || storeData.id || 'N/A',
         };
 
         console.log("✅ Fallback data extracted:", fallbackData);
@@ -174,8 +173,8 @@ const SuggestionWizard = () => {
               contactValue: "",
               contactWhatsapp: "",
               contactEmail: "",
-              tradeName: "Loja Teste",
-              storeId: "63702 - Loja Teste",
+            tradeName: "Loja Teste",
+            storeId: "63702",
             };
             setFormData(testFormData);
           }
@@ -320,23 +319,18 @@ const SuggestionWizard = () => {
       console.log("=== SAVING TO SUPABASE ===");
       console.log("Form data before save:", formData);
       
-      const finalStoreId = formData.storeId || (
-        formData.visitorId && formData.tradeName
-          ? `${formData.visitorId} - ${formData.tradeName}`
-          : (formData.visitorId || "")
-      );
-      
       const dataToSave = {
         suggestion: formData.suggestion.trim(),
         visitor_id: formData.visitorId,
-        account_id: formData.accountId,              // ID do usuário
+        account_id: formData.accountId,
         user_full_name: formData.userFullName,
         user_email: formData.userEmail,
         store_phone1: formData.storePhone1,
+        store_id: formData.storeId,
+        store_name: formData.tradeName,
         preferred_contact_method: formData.preferredContactMethod,
         contact_value: formData.contactValue,
         contact_whatsapp: formData.contactWhatsapp,
-        store_id: finalStoreId,                  // ID da loja no formato "id_store - trade_name"
       };
       
       console.log("Data being saved to Supabase:", dataToSave);
@@ -365,8 +359,7 @@ const SuggestionWizard = () => {
           id: formData.visitorId,
           store_id: formData.storeId,
           name: formData.tradeName,
-          phone: formData.storePhone1,
-          full_store_id: finalStoreId
+          phone: formData.storePhone1
         },
         contact_preferences: {
           preferred_method: formData.preferredContactMethod,
