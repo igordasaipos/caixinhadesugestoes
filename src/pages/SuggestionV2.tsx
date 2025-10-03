@@ -3,7 +3,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Headphones, AlertTriangle, Wrench, MoreHorizontal, ArrowLeft, ArrowRight } from "lucide-react";
+import { 
+  Headphones, AlertTriangle, Wrench, MoreHorizontal, ArrowLeft, ArrowRight,
+  ShoppingCart, BarChart3, FileText, Truck, Plug, Bot, Package, MapPin, Ellipsis
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -11,6 +14,7 @@ type Category = "atendimento" | "mal-funcionamento" | "melhorias" | "outros" | n
 
 interface FormData {
   category: Category;
+  subcategory: string;
   suggestion: string;
   name: string;
   email: string;
@@ -21,6 +25,7 @@ const SuggestionV2 = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
     category: null,
+    subcategory: "",
     suggestion: "",
     name: "",
     email: "",
@@ -56,8 +61,74 @@ const SuggestionV2 = () => {
     },
   ];
 
+  const subcategories = [
+    {
+      id: "pdv",
+      title: "OPERAÇÃO DE LOJA (PDV)",
+      description: "Sugestões sobre impressões ou modelos de impressão, KDS, vendas de mesa, ficha e delivery entre outras.",
+      icon: ShoppingCart,
+    },
+    {
+      id: "retaguarda",
+      title: "RETAGUARDA",
+      description: "Tudo que esteja relacionado com relatórios, controle de estoque, financeiro, cadastro de clientes e outros.",
+      icon: BarChart3,
+    },
+    {
+      id: "fiscal",
+      title: "FISCAL",
+      description: "Sugestões sobre códigos fiscais e notas fiscais.",
+      icon: FileText,
+    },
+    {
+      id: "cardapio-digital",
+      title: "CARDÁPIO DIGITAL DELIVERY E QRCODE",
+      description: "Sugestões relacionadas ao cardápio de delivery Saipos e o cardápio digital de mesa.",
+      icon: Truck,
+    },
+    {
+      id: "integracoes",
+      title: "INTEGRAÇÕES",
+      description: "Sugestões relacionadas às integrações com o Saipos, como iFood, Foody Delivery, Delivery Direto, Delivery Much...",
+      icon: Plug,
+    },
+    {
+      id: "saipos-bot",
+      title: "SAIPOS BOT",
+      description: "Sugestões relacionadas ao envio de mensagens do chatbot, automações, mensagens entre outros.",
+      icon: Bot,
+    },
+    {
+      id: "cadastro-produtos",
+      title: "CADASTRO DE PRODUTOS / CARDÁPIO",
+      description: "Sugestões sobre o cadastro de produtos, disponibilidades de dias e horários nas plataformas, entre outras.",
+      icon: Package,
+    },
+    {
+      id: "roteirizacao",
+      title: "ROTEIRIZAÇÃO",
+      description: "Sugestões sobre roteirização de pedidos, Saipos Entregador, despacho de pedidos, entre outras.",
+      icon: MapPin,
+    },
+    {
+      id: "outros-melhorias",
+      title: "OUTROS",
+      description: "Sugestões sobre outros contextos não inseridos anteriormente ou novos produtos e funcionalidades.",
+      icon: Ellipsis,
+    },
+  ];
+
   const handleCategorySelect = (categoryId: Category) => {
     setFormData(prev => ({ ...prev, category: categoryId }));
+    if (categoryId === "melhorias") {
+      setCurrentStep(1.5); // Go to subcategory selection
+    } else {
+      setCurrentStep(2);
+    }
+  };
+
+  const handleSubcategorySelect = (subcategoryId: string) => {
+    setFormData(prev => ({ ...prev, subcategory: subcategoryId }));
     setCurrentStep(2);
   };
 
@@ -65,8 +136,12 @@ const SuggestionV2 = () => {
     setIsSubmitting(true);
     
     try {
+      const categoryLabel = formData.subcategory 
+        ? `[${formData.category} - ${formData.subcategory}]`
+        : `[${formData.category}]`;
+
       const { error } = await supabase.from("suggestions").insert({
-        suggestion: `[${formData.category}] ${formData.suggestion}`,
+        suggestion: `${categoryLabel} ${formData.suggestion}`,
         visitor_id: "v2-flow",
         account_id: "direct-submission",
         user_full_name: formData.name,
@@ -86,6 +161,7 @@ const SuggestionV2 = () => {
       // Reset form
       setFormData({
         category: null,
+        subcategory: "",
         suggestion: "",
         name: "",
         email: "",
@@ -109,26 +185,29 @@ const SuggestionV2 = () => {
       <div className="w-full max-w-4xl">
         {/* Step Indicator */}
         <div className="flex items-center justify-center mb-8">
-          {[1, 2, 3].map((step, index) => (
-            <div key={step} className="flex items-center">
-              <div
-                className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold transition-colors ${
-                  currentStep >= step
-                    ? "bg-green-500 text-white"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {step}
-              </div>
-              {index < 2 && (
+          {[1, 2, 3].map((step, index) => {
+            const displayStep = currentStep === 1.5 ? 1 : currentStep;
+            return (
+              <div key={step} className="flex items-center">
                 <div
-                  className={`w-24 h-1 mx-2 transition-colors ${
-                    currentStep > step ? "bg-green-500" : "bg-muted"
+                  className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold transition-colors ${
+                    displayStep >= step
+                      ? "bg-green-500 text-white"
+                      : "bg-muted text-muted-foreground"
                   }`}
-                />
-              )}
-            </div>
-          ))}
+                >
+                  {step}
+                </div>
+                {index < 2 && (
+                  <div
+                    className={`w-24 h-1 mx-2 transition-colors ${
+                      displayStep > step ? "bg-green-500" : "bg-muted"
+                    }`}
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Step 1: Category Selection */}
@@ -167,6 +246,54 @@ const SuggestionV2 = () => {
           </div>
         )}
 
+        {/* Step 1.5: Subcategory Selection for Melhorias */}
+        {currentStep === 1.5 && (
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-bold">
+                Perfeito! Para qual parte do sistema se aplicaria essa solução?
+              </h2>
+              <p className="text-muted-foreground">
+                Selecione abaixo o contexto da sua sugestão:
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {subcategories.map((subcategory) => {
+                const Icon = subcategory.icon;
+                return (
+                  <Card
+                    key={subcategory.id}
+                    className="cursor-pointer hover:shadow-lg transition-shadow border hover:border-primary"
+                    onClick={() => handleSubcategorySelect(subcategory.id)}
+                  >
+                    <CardContent className="p-6 space-y-3">
+                      <Icon className="w-12 h-12 text-primary" />
+                      <h3 className="font-semibold text-sm">
+                        {subcategory.title}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        {subcategory.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
+            <div className="flex justify-center">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentStep(1)}
+                className="w-full max-w-md"
+              >
+                <ArrowLeft className="mr-2 w-4 h-4" />
+                Voltar
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Step 2: Suggestion Details */}
         {currentStep === 2 && (
           <div className="space-y-6">
@@ -200,7 +327,7 @@ const SuggestionV2 = () => {
             <div className="flex gap-3">
               <Button
                 variant="outline"
-                onClick={() => setCurrentStep(1)}
+                onClick={() => setCurrentStep(formData.category === "melhorias" ? 1.5 : 1)}
                 className="w-full"
               >
                 <ArrowLeft className="mr-2 w-4 h-4" />
