@@ -271,7 +271,7 @@ const SuggestionBox = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                 {modulosSistema.map((modulo) => {
                   const Icon = modulo.icon;
                   return (
@@ -280,12 +280,12 @@ const SuggestionBox = () => {
                       className="cursor-pointer hover:shadow-lg transition-all duration-300 border hover:border-primary hover:scale-105"
                       onClick={() => handleModuloSelect(modulo.id)}
                     >
-                      <CardContent className="p-4 md:p-6 space-y-3 md:space-y-4">
-                        <Icon className="w-10 h-10 md:w-14 md:h-14 text-primary" />
-                        <h3 className="font-semibold text-sm md:text-base leading-tight">
+                      <CardContent className="p-3 md:p-4 space-y-2 md:space-y-3">
+                        <Icon className="w-8 h-8 md:w-10 md:h-10 text-primary" />
+                        <h3 className="font-semibold text-xs md:text-sm leading-tight">
                           {modulo.title}
                         </h3>
-                        <p className="text-xs md:text-sm text-muted-foreground leading-snug">
+                        <p className="text-[10px] md:text-xs text-muted-foreground leading-snug">
                           {modulo.description}
                         </p>
                       </CardContent>
