@@ -179,7 +179,7 @@ const SuggestionBox = () => {
           {[1, 2, 3].map((step, index) => (
             <div key={step} className="flex items-center">
               <div
-                className={`w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-300 ${
+                className={`w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center text-base md:text-lg font-bold transition-all duration-300 ${
                   currentStep > step
                     ? "bg-[hsl(var(--primary))] text-primary-foreground"
                     : currentStep === step
@@ -188,14 +188,14 @@ const SuggestionBox = () => {
                 }`}
               >
                 {currentStep > step ? (
-                  <Check className="w-6 h-6" />
+                  <Check className="w-4 h-4 md:w-6 md:h-6" />
                 ) : (
                   step
                 )}
               </div>
               {index < 2 && (
                 <div
-                  className={`w-24 h-1 mx-2 transition-all duration-300 ${
+                  className={`w-12 md:w-24 h-1 mx-1 md:mx-2 transition-all duration-300 ${
                     currentStep > step ? "bg-[hsl(var(--primary))]" : "bg-muted"
                   }`}
                 />
@@ -217,13 +217,14 @@ const SuggestionBox = () => {
               transition={pageTransition}
               className="space-y-8"
             >
-              <div className="text-center space-y-3">
-                <h1 className="text-4xl font-bold text-foreground">
+              <div className="text-center space-y-2 md:space-y-3">
+                <h1 className="text-2xl md:text-4xl font-bold text-foreground">
                   Tem sugestões de melhorias para a Saipos?
-                  <br />
+                  <br className="hidden md:block" />
+                  <span className="md:hidden"> </span>
                   Queremos saber!
                 </h1>
-                <p className="text-xl text-muted-foreground">
+                <p className="text-base md:text-xl text-muted-foreground">
                   Selecione abaixo o assunto da sua sugestão:
                 </p>
               </div>
@@ -237,9 +238,9 @@ const SuggestionBox = () => {
                       className="cursor-pointer hover:shadow-xl transition-all duration-300 border-2 hover:border-primary hover:scale-105"
                       onClick={() => handleAssuntoSelect(assunto.id)}
                     >
-                      <CardContent className="p-10 flex flex-col items-center text-center space-y-5">
-                        <Icon className={`w-20 h-20 ${assunto.color}`} />
-                        <h3 className="font-semibold text-xl">
+                      <CardContent className="p-6 md:p-10 flex flex-col items-center text-center space-y-3 md:space-y-5">
+                        <Icon className={`w-12 h-12 md:w-20 md:h-20 ${assunto.color}`} />
+                        <h3 className="font-semibold text-base md:text-xl">
                           {assunto.title}
                         </h3>
                       </CardContent>
@@ -261,11 +262,11 @@ const SuggestionBox = () => {
               transition={pageTransition}
               className="space-y-8"
             >
-              <div className="text-center space-y-3">
-                <h2 className="text-3xl font-bold text-foreground">
+              <div className="text-center space-y-2 md:space-y-3">
+                <h2 className="text-xl md:text-3xl font-bold text-foreground">
                   Perfeito! Para qual parte do sistema se aplicaria essa solução?
                 </h2>
-                <p className="text-lg text-muted-foreground">
+                <p className="text-base md:text-lg text-muted-foreground">
                   Selecione o contexto da sua sugestão:
                 </p>
               </div>
@@ -279,12 +280,12 @@ const SuggestionBox = () => {
                       className="cursor-pointer hover:shadow-lg transition-all duration-300 border hover:border-primary hover:scale-105"
                       onClick={() => handleModuloSelect(modulo.id)}
                     >
-                      <CardContent className="p-6 space-y-4">
-                        <Icon className="w-14 h-14 text-primary" />
-                        <h3 className="font-semibold text-base leading-tight">
+                      <CardContent className="p-4 md:p-6 space-y-3 md:space-y-4">
+                        <Icon className="w-10 h-10 md:w-14 md:h-14 text-primary" />
+                        <h3 className="font-semibold text-sm md:text-base leading-tight">
                           {modulo.title}
                         </h3>
-                        <p className="text-sm text-muted-foreground leading-snug">
+                        <p className="text-xs md:text-sm text-muted-foreground leading-snug">
                           {modulo.description}
                         </p>
                       </CardContent>
@@ -318,13 +319,13 @@ const SuggestionBox = () => {
               transition={pageTransition}
               className="space-y-8"
             >
-              <div className="text-center space-y-3">
-                <h2 className="text-3xl font-bold text-foreground">
+              <div className="text-center space-y-2 md:space-y-3">
+                <h2 className="text-xl md:text-3xl font-bold text-foreground">
                   Por favor, deixe a sua sugestão!
                 </h2>
-                <div className="text-lg text-muted-foreground space-y-2">
+                <div className="text-base md:text-lg text-muted-foreground space-y-2">
                   <p>Precisamos de alguns detalhes para entender melhor sua sugestão:</p>
-                  <ul className="text-base space-y-1">
+                  <ul className="text-sm md:text-base space-y-1">
                     <li>• Qual problema ou necessidade ela resolve?</li>
                     <li>• Se possível, relate sua última experiência com esse problema.</li>
                   </ul>
@@ -332,9 +333,9 @@ const SuggestionBox = () => {
               </div>
 
               <Card className="border-2">
-                <CardContent className="p-8 space-y-6">
+                <CardContent className="p-4 md:p-8 space-y-4 md:space-y-6">
                   <div>
-                    <label className="text-base font-medium mb-3 block">
+                    <label className="text-sm md:text-base font-medium mb-2 md:mb-3 block">
                       Escreva sua sugestão:
                     </label>
                     <Textarea
@@ -346,7 +347,7 @@ const SuggestionBox = () => {
                           sugestao: e.target.value,
                         }))
                       }
-                      className="min-h-[200px] text-base"
+                      className="min-h-[150px] md:min-h-[200px] text-sm md:text-base"
                     />
                   </div>
                 </CardContent>
