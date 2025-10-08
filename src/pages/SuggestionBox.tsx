@@ -133,9 +133,14 @@ const SuggestionBox = () => {
   ];
 
   // Handlers
+  const handleAssuntoSelect = (assunto: AssuntoPrincipal) => {
+    setFormData((prev) => ({ ...prev, assuntoPrincipal: assunto }));
+    setCurrentStep(2);
+  };
+
   const handleModuloSelect = (modulo: string) => {
     setFormData((prev) => ({ ...prev, moduloSistema: modulo }));
-    setCurrentStep(2);
+    setCurrentStep(3);
   };
 
   const handleSubmit = () => {
@@ -171,7 +176,7 @@ const SuggestionBox = () => {
       <div className="w-full max-w-5xl">
         {/* Stepper */}
         <div className="flex items-center justify-center mb-12">
-          {[1, 2].map((step, index) => (
+          {[1, 2, 3].map((step, index) => (
             <div key={step} className="flex items-center">
               <div
                 className={`w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center text-base md:text-lg font-bold transition-all duration-300 ${
@@ -188,7 +193,7 @@ const SuggestionBox = () => {
                   step
                 )}
               </div>
-              {index < 1 && (
+              {index < 2 && (
                 <div
                   className={`w-12 md:w-24 h-1 mx-1 md:mx-2 transition-all duration-300 ${
                     currentStep > step ? "bg-[hsl(var(--primary))]" : "bg-muted"
@@ -201,8 +206,53 @@ const SuggestionBox = () => {
 
         {/* Conteúdo das Etapas */}
         <AnimatePresence mode="wait">
-          {/* Etapa 1: Seleção de Contexto */}
+          {/* Etapa 1: Assunto Principal */}
           {currentStep === 1 && (
+            <motion.div
+              key="step1"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={pageTransition}
+              className="space-y-8"
+            >
+              <div className="text-center space-y-2 md:space-y-3">
+                <h1 className="text-2xl md:text-4xl font-bold text-foreground">
+                  Tem sugestões de melhorias para a Saipos?
+                  <br className="hidden md:block" />
+                  <span className="md:hidden"> </span>
+                  Queremos saber!
+                </h1>
+                <p className="text-base md:text-xl text-muted-foreground">
+                  Selecione abaixo o assunto da sua sugestão:
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {assuntosPrincipais.map((assunto) => {
+                  const Icon = assunto.icon;
+                  return (
+                    <Card
+                      key={assunto.id}
+                      className="cursor-pointer hover:shadow-xl transition-all duration-300 border-2 hover:border-primary hover:scale-105"
+                      onClick={() => handleAssuntoSelect(assunto.id)}
+                    >
+                      <CardContent className="p-6 md:p-10 flex flex-col items-center text-center space-y-3 md:space-y-5">
+                        <Icon className={`w-12 h-12 md:w-20 md:h-20 ${assunto.color}`} />
+                        <h3 className="font-semibold text-base md:text-xl">
+                          {assunto.title}
+                        </h3>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Etapa 2: Parte do Sistema */}
+          {currentStep === 2 && (
             <motion.div
               key="step2"
               variants={pageVariants}
@@ -221,7 +271,7 @@ const SuggestionBox = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                 {modulosSistema.map((modulo) => {
                   const Icon = modulo.icon;
                   return (
@@ -244,11 +294,22 @@ const SuggestionBox = () => {
                 })}
               </div>
 
+              <div className="flex justify-center pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentStep(1)}
+                  size="lg"
+                  className="min-w-[200px]"
+                >
+                  <ArrowLeft className="mr-2 w-5 h-5" />
+                  Voltar
+                </Button>
+              </div>
             </motion.div>
           )}
 
-          {/* Etapa 2: Detalhamento da Sugestão */}
-          {currentStep === 2 && (
+          {/* Etapa 3: Detalhamento da Sugestão */}
+          {currentStep === 3 && (
             <motion.div
               key="step3"
               variants={pageVariants}
@@ -295,7 +356,7 @@ const SuggestionBox = () => {
               <div className="flex gap-4 justify-center pt-4">
                 <Button
                   variant="outline"
-                  onClick={() => setCurrentStep(1)}
+                  onClick={() => setCurrentStep(2)}
                   size="lg"
                   className="min-w-[180px]"
                 >
