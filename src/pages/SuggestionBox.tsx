@@ -232,31 +232,31 @@ const SuggestionBox = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-5xl">
-        {/* Stepper - Dinâmico (2 ou 3 steps) */}
-        <div className="flex items-center justify-center mb-12">
+    <div className="min-h-screen bg-muted/30 flex items-center justify-center p-2 md:p-4">
+      <div className="w-full max-w-2xl">
+        {/* Stepper - Dinâmico e compacto */}
+        <div className="flex items-center justify-center mb-4 md:mb-6">
           {(step2Type === null ? [1, 3] : [1, 2, 3]).map((step, index, arr) => (
             <div key={step} className="flex items-center">
               <div
-                className={`w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center text-base md:text-lg font-bold transition-all duration-300 ${
+                className={`w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs md:text-sm font-semibold transition-all duration-300 ${
                   currentStep > step
-                    ? "bg-[hsl(var(--primary))] text-primary-foreground"
+                    ? "bg-primary text-primary-foreground"
                     : currentStep === step
-                    ? "bg-[hsl(var(--primary))] text-primary-foreground ring-4 ring-primary/20"
+                    ? "bg-primary text-primary-foreground ring-2 ring-primary/30"
                     : "bg-muted text-muted-foreground"
                 }`}
               >
                 {currentStep > step ? (
-                  <Check className="w-4 h-4 md:w-6 md:h-6" />
+                  <Check className="w-3 h-3 md:w-4 md:h-4" />
                 ) : (
                   step2Type === null && step === 3 ? 2 : step
                 )}
               </div>
               {index < arr.length - 1 && (
                 <div
-                  className={`w-12 md:w-24 h-1 mx-1 md:mx-2 transition-all duration-300 ${
-                    currentStep > step ? "bg-[hsl(var(--primary))]" : "bg-muted"
+                  className={`w-8 md:w-16 h-0.5 mx-1 transition-all duration-300 ${
+                    currentStep > step ? "bg-primary" : "bg-muted"
                   }`}
                 />
               )}
@@ -275,32 +275,29 @@ const SuggestionBox = () => {
               animate="animate"
               exit="exit"
               transition={pageTransition}
-              className="space-y-8"
+              className="space-y-4 md:space-y-5"
             >
-              <div className="text-center space-y-2 md:space-y-3">
-                <h1 className="text-2xl md:text-4xl font-bold text-foreground">
+              <div className="text-center space-y-1 md:space-y-2">
+                <h1 className="text-lg md:text-2xl font-bold text-foreground">
                   Tem sugestões de melhorias para a Saipos?
-                  <br className="hidden md:block" />
-                  <span className="md:hidden"> </span>
-                  Queremos saber!
                 </h1>
-                <p className="text-base md:text-xl text-muted-foreground">
-                  Selecione abaixo o assunto da sua sugestão:
+                <p className="text-sm md:text-base text-muted-foreground">
+                  Selecione o assunto da sua sugestão:
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 {assuntosPrincipais.map((assunto) => {
                   const Icon = assunto.icon;
                   return (
                     <Card
                       key={assunto.id}
-                      className="cursor-pointer hover:shadow-xl transition-all duration-300 border-2 hover:border-primary hover:scale-105"
+                      className="cursor-pointer hover:shadow-lg transition-all duration-200 border hover:border-primary hover:scale-[1.02] bg-card"
                       onClick={() => handleAssuntoSelect(assunto.id)}
                     >
-                      <CardContent className="p-6 md:p-10 flex flex-col items-center text-center space-y-3 md:space-y-5">
-                        <Icon className={`w-12 h-12 md:w-20 md:h-20 ${assunto.color}`} />
-                        <h3 className="font-semibold text-base md:text-xl">
+                      <CardContent className="p-4 md:p-6 flex flex-col items-center text-center space-y-2 md:space-y-3">
+                        <Icon className={`w-8 h-8 md:w-12 md:h-12 ${assunto.color}`} />
+                        <h3 className="font-semibold text-sm md:text-base leading-tight">
                           {assunto.title}
                         </h3>
                       </CardContent>
@@ -320,29 +317,29 @@ const SuggestionBox = () => {
               animate="animate"
               exit="exit"
               transition={pageTransition}
-              className="space-y-8"
+              className="space-y-4 md:space-y-5"
             >
-              <div className="text-center space-y-2 md:space-y-3">
-                <h2 className="text-xl md:text-3xl font-bold text-foreground">
-                  Perfeito! Qual área de atendimento está relacionada à sua sugestão?
+              <div className="text-center space-y-1 md:space-y-2">
+                <h2 className="text-lg md:text-2xl font-bold text-foreground">
+                  Qual área de atendimento?
                 </h2>
-                <p className="text-base md:text-lg text-muted-foreground">
-                  Selecione a área de atendimento:
+                <p className="text-sm md:text-base text-muted-foreground">
+                  Selecione a área relacionada:
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
                 {areasAtendimento.map((area) => {
                   const Icon = area.icon;
                   return (
                     <Card
                       key={area.id}
-                      className="cursor-pointer hover:shadow-lg transition-all duration-300 border hover:border-primary hover:scale-105"
+                      className="cursor-pointer hover:shadow-md transition-all duration-200 border hover:border-primary hover:scale-[1.02] bg-card"
                       onClick={() => handleAreaAtendimentoSelect(area.id)}
                     >
-                      <CardContent className="p-4 md:p-6 flex flex-col items-center text-center space-y-3">
-                        <Icon className="w-10 h-10 md:w-12 md:h-12 text-primary" />
-                        <h3 className="font-semibold text-sm md:text-base">
+                      <CardContent className="p-3 md:p-4 flex flex-col items-center text-center space-y-2">
+                        <Icon className="w-7 h-7 md:w-9 md:h-9 text-primary" />
+                        <h3 className="font-medium text-xs md:text-sm">
                           {area.title}
                         </h3>
                       </CardContent>
@@ -351,14 +348,14 @@ const SuggestionBox = () => {
                 })}
               </div>
 
-              <div className="flex justify-center pt-4">
+              <div className="flex justify-center pt-2">
                 <Button
                   variant="outline"
                   onClick={() => setCurrentStep(1)}
-                  size="lg"
-                  className="min-w-[200px]"
+                  size="sm"
+                  className="min-w-[140px]"
                 >
-                  <ArrowLeft className="mr-2 w-5 h-5" />
+                  <ArrowLeft className="mr-2 w-4 h-4" />
                   Voltar
                 </Button>
               </div>
@@ -374,32 +371,32 @@ const SuggestionBox = () => {
               animate="animate"
               exit="exit"
               transition={pageTransition}
-              className="space-y-8"
+              className="space-y-4 md:space-y-5"
             >
-              <div className="text-center space-y-2 md:space-y-3">
-                <h2 className="text-xl md:text-3xl font-bold text-foreground">
-                  Perfeito! Para qual parte do sistema se aplicaria essa solução?
+              <div className="text-center space-y-1 md:space-y-2">
+                <h2 className="text-lg md:text-2xl font-bold text-foreground">
+                  Para qual parte do sistema?
                 </h2>
-                <p className="text-base md:text-lg text-muted-foreground">
-                  Selecione o contexto da sua sugestão:
+                <p className="text-sm md:text-base text-muted-foreground">
+                  Selecione o contexto:
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
                 {modulosSistema.map((modulo) => {
                   const Icon = modulo.icon;
                   return (
                     <Card
                       key={modulo.id}
-                      className="cursor-pointer hover:shadow-lg transition-all duration-300 border hover:border-primary hover:scale-105"
+                      className="cursor-pointer hover:shadow-md transition-all duration-200 border hover:border-primary hover:scale-[1.02] bg-card"
                       onClick={() => handleModuloSelect(modulo.id)}
                     >
-                      <CardContent className="p-3 md:p-4 space-y-2 md:space-y-3">
-                        <Icon className="w-8 h-8 md:w-10 md:h-10 text-primary" />
-                        <h3 className="font-semibold text-xs md:text-sm leading-tight">
+                      <CardContent className="p-2.5 md:p-3 space-y-1.5 md:space-y-2">
+                        <Icon className="w-6 h-6 md:w-8 md:h-8 text-primary" />
+                        <h3 className="font-medium text-[11px] md:text-xs leading-tight">
                           {modulo.title}
                         </h3>
-                        <p className="text-[10px] md:text-xs text-muted-foreground leading-snug">
+                        <p className="text-[9px] md:text-[10px] text-muted-foreground leading-snug line-clamp-2">
                           {modulo.description}
                         </p>
                       </CardContent>
@@ -408,14 +405,14 @@ const SuggestionBox = () => {
                 })}
               </div>
 
-              <div className="flex justify-center pt-4">
+              <div className="flex justify-center pt-2">
                 <Button
                   variant="outline"
                   onClick={() => setCurrentStep(1)}
-                  size="lg"
-                  className="min-w-[200px]"
+                  size="sm"
+                  className="min-w-[140px]"
                 >
-                  <ArrowLeft className="mr-2 w-5 h-5" />
+                  <ArrowLeft className="mr-2 w-4 h-4" />
                   Voltar
                 </Button>
               </div>
@@ -431,29 +428,29 @@ const SuggestionBox = () => {
               animate="animate"
               exit="exit"
               transition={pageTransition}
-              className="space-y-8"
+              className="space-y-4 md:space-y-5"
             >
-              <div className="text-center space-y-2 md:space-y-3">
-                <h2 className="text-xl md:text-3xl font-bold text-foreground">
-                  Por favor, deixe a sua sugestão!
+              <div className="text-center space-y-1 md:space-y-2">
+                <h2 className="text-lg md:text-2xl font-bold text-foreground">
+                  Deixe sua sugestão
                 </h2>
-                <div className="text-base md:text-lg text-muted-foreground space-y-2">
-                  <p>Precisamos de alguns detalhes para entender melhor sua sugestão:</p>
-                  <ul className="text-sm md:text-base space-y-1">
-                    <li>• Qual problema ou necessidade ela resolve?</li>
-                    <li>• Se possível, relate sua última experiência com esse problema.</li>
+                <div className="text-xs md:text-sm text-muted-foreground space-y-1">
+                  <p>Conte-nos sobre sua ideia:</p>
+                  <ul className="text-[11px] md:text-xs space-y-0.5">
+                    <li>• Qual problema ela resolve?</li>
+                    <li>• Como melhoraria sua experiência?</li>
                   </ul>
                 </div>
               </div>
 
-              <Card className="border-2">
-                <CardContent className="p-4 md:p-8 space-y-4 md:space-y-6">
+              <Card className="border bg-card">
+                <CardContent className="p-3 md:p-4 space-y-2 md:space-y-3">
                   <div>
-                    <label className="text-sm md:text-base font-medium mb-2 md:mb-3 block">
-                      Escreva sua sugestão:
+                    <label className="text-xs md:text-sm font-medium mb-1.5 md:mb-2 block">
+                      Sua sugestão:
                     </label>
                     <Textarea
-                      placeholder="Escreva sua sugestão aqui..."
+                      placeholder="Descreva sua sugestão..."
                       value={formData.sugestao}
                       onChange={(e) =>
                         setFormData((prev) => ({
@@ -461,27 +458,27 @@ const SuggestionBox = () => {
                           sugestao: e.target.value,
                         }))
                       }
-                      className="min-h-[150px] md:min-h-[200px] text-sm md:text-base"
+                      className="min-h-[120px] md:min-h-[140px] text-xs md:text-sm resize-none"
                     />
                   </div>
                 </CardContent>
               </Card>
 
-              <div className="flex gap-4 justify-center pt-4">
+              <div className="flex gap-2 md:gap-3 justify-center pt-2">
                 <Button
                   variant="outline"
                   onClick={() => setCurrentStep(step2Type === null ? 1 : 2)}
-                  size="lg"
-                  className="min-w-[180px]"
+                  size="sm"
+                  className="min-w-[120px]"
                 >
-                  <ArrowLeft className="mr-2 w-5 h-5" />
+                  <ArrowLeft className="mr-2 w-4 h-4" />
                   Voltar
                 </Button>
                 <Button
                   onClick={handleSubmit}
                   disabled={!formData.sugestao.trim()}
-                  size="lg"
-                  className="min-w-[180px] bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90"
+                  size="sm"
+                  className="min-w-[120px]"
                 >
                   Enviar
                 </Button>
@@ -492,21 +489,21 @@ const SuggestionBox = () => {
 
         {/* Modal de Sucesso */}
         <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-sm">
             <DialogHeader>
-              <DialogTitle className="text-2xl text-center flex items-center justify-center gap-2">
-                <span className="text-4xl">🎉</span>
-                Obrigado pela sua sugestão!
+              <DialogTitle className="text-lg md:text-xl text-center flex items-center justify-center gap-2">
+                <span className="text-2xl md:text-3xl">🎉</span>
+                Obrigado!
               </DialogTitle>
-              <DialogDescription className="text-center text-lg pt-4">
-                Nosso time de Produto vai analisar com carinho 💙
+              <DialogDescription className="text-center text-sm md:text-base pt-2">
+                Nosso time vai analisar com carinho 💙
               </DialogDescription>
             </DialogHeader>
-            <div className="flex justify-center pt-4">
+            <div className="flex justify-center pt-2">
               <Button
                 onClick={handleCloseSuccess}
-                size="lg"
-                className="min-w-[200px]"
+                size="sm"
+                className="min-w-[140px]"
               >
                 Fechar
               </Button>
