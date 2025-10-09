@@ -26,22 +26,30 @@ import {
   Ellipsis,
   Check,
   ArrowLeft,
+  DollarSign,
+  GraduationCap,
+  Building,
+  MessageSquare,
 } from "lucide-react";
 
 type AssuntoPrincipal = "atendimento" | "mal-funcionamento" | "melhorias" | "outros" | null;
 type ModuloSistema = string | null;
+type Step2Type = 'atendimento' | 'sistema' | null;
 
 interface FormData {
   assuntoPrincipal: AssuntoPrincipal;
-  moduloSistema: ModuloSistema;
+  areaAtendimento?: string | null;
+  moduloSistema?: string | null;
   sugestao: string;
 }
 
 const SuggestionBox = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [step2Type, setStep2Type] = useState<Step2Type>(null);
   const [formData, setFormData] = useState<FormData>({
     assuntoPrincipal: null,
+    areaAtendimento: null,
     moduloSistema: null,
     sugestao: "",
   });
@@ -71,6 +79,40 @@ const SuggestionBox = () => {
       title: "Outros",
       icon: MoreHorizontal,
       color: "text-gray-500",
+    },
+  ];
+
+  // Definição das áreas de atendimento
+  const areasAtendimento = [
+    {
+      id: "suporte",
+      title: "Suporte",
+      icon: Headphones,
+    },
+    {
+      id: "vendas",
+      title: "Vendas",
+      icon: DollarSign,
+    },
+    {
+      id: "treinamento",
+      title: "Treinamento",
+      icon: GraduationCap,
+    },
+    {
+      id: "implantacao",
+      title: "Implantação",
+      icon: Building,
+    },
+    {
+      id: "canais-contato",
+      title: "Canais de Contato",
+      icon: MessageSquare,
+    },
+    {
+      id: "outros-atendimento",
+      title: "Outros",
+      icon: MoreHorizontal,
     },
   ];
 
@@ -135,7 +177,23 @@ const SuggestionBox = () => {
   // Handlers
   const handleAssuntoSelect = (assunto: AssuntoPrincipal) => {
     setFormData((prev) => ({ ...prev, assuntoPrincipal: assunto }));
-    setCurrentStep(2);
+    
+    // Lógica condicional para determinar próximo step
+    if (assunto === "atendimento") {
+      setStep2Type('atendimento');
+      setCurrentStep(2);
+    } else if (assunto === "mal-funcionamento" || assunto === "melhorias") {
+      setStep2Type('sistema');
+      setCurrentStep(2);
+    } else if (assunto === "outros") {
+      setStep2Type(null);
+      setCurrentStep(3); // Pula Step 2
+    }
+  };
+
+  const handleAreaAtendimentoSelect = (area: string) => {
+    setFormData((prev) => ({ ...prev, areaAtendimento: area }));
+    setCurrentStep(3);
   };
 
   const handleModuloSelect = (modulo: string) => {
@@ -154,10 +212,12 @@ const SuggestionBox = () => {
     // Reset form
     setFormData({
       assuntoPrincipal: null,
+      areaAtendimento: null,
       moduloSistema: null,
       sugestao: "",
     });
     setCurrentStep(1);
+    setStep2Type(null);
   };
 
   // Animações
@@ -174,9 +234,9 @@ const SuggestionBox = () => {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-5xl">
-        {/* Stepper */}
+        {/* Stepper - Dinâmico (2 ou 3 steps) */}
         <div className="flex items-center justify-center mb-12">
-          {[1, 2, 3].map((step, index) => (
+          {(step2Type === null ? [1, 3] : [1, 2, 3]).map((step, index, arr) => (
             <div key={step} className="flex items-center">
               <div
                 className={`w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center text-base md:text-lg font-bold transition-all duration-300 ${
@@ -190,10 +250,10 @@ const SuggestionBox = () => {
                 {currentStep > step ? (
                   <Check className="w-4 h-4 md:w-6 md:h-6" />
                 ) : (
-                  step
+                  step2Type === null && step === 3 ? 2 : step
                 )}
               </div>
-              {index < 2 && (
+              {index < arr.length - 1 && (
                 <div
                   className={`w-12 md:w-24 h-1 mx-1 md:mx-2 transition-all duration-300 ${
                     currentStep > step ? "bg-[hsl(var(--primary))]" : "bg-muted"
@@ -251,10 +311,64 @@ const SuggestionBox = () => {
             </motion.div>
           )}
 
-          {/* Etapa 2: Parte do Sistema */}
-          {currentStep === 2 && (
+          {/* Etapa 2A: Área de Atendimento */}
+          {currentStep === 2 && step2Type === 'atendimento' && (
             <motion.div
-              key="step2"
+              key="step2-atendimento"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={pageTransition}
+              className="space-y-8"
+            >
+              <div className="text-center space-y-2 md:space-y-3">
+                <h2 className="text-xl md:text-3xl font-bold text-foreground">
+                  Perfeito! Qual área de atendimento está relacionada à sua sugestão?
+                </h2>
+                <p className="text-base md:text-lg text-muted-foreground">
+                  Selecione a área de atendimento:
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                {areasAtendimento.map((area) => {
+                  const Icon = area.icon;
+                  return (
+                    <Card
+                      key={area.id}
+                      className="cursor-pointer hover:shadow-lg transition-all duration-300 border hover:border-primary hover:scale-105"
+                      onClick={() => handleAreaAtendimentoSelect(area.id)}
+                    >
+                      <CardContent className="p-4 md:p-6 flex flex-col items-center text-center space-y-3">
+                        <Icon className="w-10 h-10 md:w-12 md:h-12 text-primary" />
+                        <h3 className="font-semibold text-sm md:text-base">
+                          {area.title}
+                        </h3>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              <div className="flex justify-center pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentStep(1)}
+                  size="lg"
+                  className="min-w-[200px]"
+                >
+                  <ArrowLeft className="mr-2 w-5 h-5" />
+                  Voltar
+                </Button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Etapa 2B: Módulo do Sistema */}
+          {currentStep === 2 && step2Type === 'sistema' && (
+            <motion.div
+              key="step2-sistema"
               variants={pageVariants}
               initial="initial"
               animate="animate"
@@ -271,7 +385,7 @@ const SuggestionBox = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                 {modulosSistema.map((modulo) => {
                   const Icon = modulo.icon;
                   return (
@@ -356,7 +470,7 @@ const SuggestionBox = () => {
               <div className="flex gap-4 justify-center pt-4">
                 <Button
                   variant="outline"
-                  onClick={() => setCurrentStep(2)}
+                  onClick={() => setCurrentStep(step2Type === null ? 1 : 2)}
                   size="lg"
                   className="min-w-[180px]"
                 >
