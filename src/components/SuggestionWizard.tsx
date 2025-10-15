@@ -300,10 +300,9 @@ const SuggestionWizard = () => {
       console.log("=== SAVING TO SUPABASE ===");
       console.log("Form data before save:", formData);
       
-      const categoryLabel = `[${formData.category}]`;
-      
       const dataToSave = {
-        suggestion: `${categoryLabel} ${formData.suggestion.trim()}`,
+        category: formData.category,
+        suggestion: formData.suggestion.trim(),
         user_id: formData.userId,
         user_full_name: formData.userFullName,
         user_email: formData.userEmail,
