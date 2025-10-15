@@ -11,15 +11,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  ShoppingCart,
-  BarChart3,
-  FileText,
-  Truck,
-  Plug,
-  Bot,
-  Package,
-  MapPin,
-  Ellipsis,
   Check,
   ArrowLeft,
   DollarSign,
@@ -33,6 +24,15 @@ import iconAtendimento from "@/assets/icon-atendimento.png";
 import iconMalFuncionamento from "@/assets/icon-mal-funcionamento.png";
 import iconMelhorias from "@/assets/icon-melhorias.png";
 import iconOutros from "@/assets/icon-outros.png";
+import iconPdv from "@/assets/icon-pdv.png";
+import iconRetaguarda from "@/assets/icon-retaguarda.png";
+import iconFiscal from "@/assets/icon-fiscal.png";
+import iconCardapioDigital from "@/assets/icon-cardapio-digital.png";
+import iconIntegracoes from "@/assets/icon-integracoes.png";
+import iconSaiposBot from "@/assets/icon-saipos-bot.png";
+import iconCadastroProdutos from "@/assets/icon-cadastro-produtos.png";
+import iconRoteirizacao from "@/assets/icon-roteirizacao.png";
+import iconOutrosModulo from "@/assets/icon-outros-modulo.png";
 
 type AssuntoPrincipal = "atendimento" | "mal-funcionamento" | "melhorias" | "outros" | null;
 type ModuloSistema = string | null;
@@ -120,55 +120,55 @@ const SuggestionBox = () => {
       id: "pdv",
       title: "Operação de Loja (PDV)",
       description: "Sugestões sobre impressões, KDS, vendas de mesa, ficha e delivery.",
-      icon: ShoppingCart,
+      image: iconPdv,
     },
     {
       id: "retaguarda",
       title: "Retaguarda",
       description: "Relatórios, controle de estoque, financeiro, cadastro de clientes.",
-      icon: BarChart3,
+      image: iconRetaguarda,
     },
     {
       id: "fiscal",
       title: "Fiscal",
       description: "Sugestões sobre códigos fiscais e notas fiscais.",
-      icon: FileText,
+      image: iconFiscal,
     },
     {
       id: "cardapio-digital",
       title: "Cardápio Digital Delivery e QRCode",
       description: "Cardápio de delivery Saipos e cardápio digital de mesa.",
-      icon: Truck,
+      image: iconCardapioDigital,
     },
     {
       id: "integracoes",
       title: "Integrações",
       description: "iFood, Foody Delivery, Delivery Direto, Delivery Much.",
-      icon: Plug,
+      image: iconIntegracoes,
     },
     {
       id: "saipos-bot",
       title: "Saipos Bot",
       description: "Envio de mensagens, chatbot, automações.",
-      icon: Bot,
+      image: iconSaiposBot,
     },
     {
       id: "cadastro-produtos",
       title: "Cadastro de Produtos / Cardápio",
       description: "Cadastro de produtos, disponibilidades de dias e horários.",
-      icon: Package,
+      image: iconCadastroProdutos,
     },
     {
       id: "roteirizacao",
       title: "Roteirização",
       description: "Roteirização de pedidos, Saipos Entregador, despacho.",
-      icon: MapPin,
+      image: iconRoteirizacao,
     },
     {
       id: "outros-modulo",
       title: "Outros",
       description: "Outros contextos ou novos produtos e funcionalidades.",
-      icon: Ellipsis,
+      image: iconOutrosModulo,
     },
   ];
 
@@ -381,7 +381,6 @@ const SuggestionBox = () => {
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
                 {modulosSistema.map((modulo) => {
-                  const Icon = modulo.icon;
                   return (
                     <Card
                       key={modulo.id}
@@ -389,7 +388,7 @@ const SuggestionBox = () => {
                       onClick={() => handleModuloSelect(modulo.id)}
                     >
                       <CardContent className="p-2.5 md:p-3 space-y-1.5 md:space-y-2">
-                        <Icon className="w-6 h-6 md:w-8 md:h-8 text-primary" />
+                        <img src={modulo.image} alt={modulo.title} className="w-6 h-6 md:w-8 md:h-8" />
                         <h3 className="font-medium text-[11px] md:text-xs leading-tight">
                           {modulo.title}
                         </h3>
