@@ -289,10 +289,10 @@ const SuggestionBox = () => {
                   return (
                     <Card
                       key={assunto.id}
-                      className="cursor-pointer hover:shadow-lg transition-all duration-200 border hover:border-primary hover:scale-[1.02] bg-card"
+                      className="cursor-pointer hover:shadow-lg transition-all duration-200 border hover:border-primary hover:scale-[1.02] bg-card h-[120px] md:h-[140px]"
                       onClick={() => handleAssuntoSelect(assunto.id)}
                     >
-                      <CardContent className="p-4 md:p-6 flex flex-col items-center text-center space-y-2 md:space-y-3">
+                      <CardContent className="p-4 md:p-6 flex flex-col items-center justify-center text-center space-y-2 md:space-y-3 h-full">
                         <img src={assunto.image} alt={assunto.title} className="w-8 h-8 md:w-12 md:h-12" />
                         <h3 className="font-semibold text-sm md:text-base leading-tight">
                           {assunto.title}
@@ -330,10 +330,10 @@ const SuggestionBox = () => {
                   return (
                     <Card
                       key={area.id}
-                      className="cursor-pointer hover:shadow-md transition-all duration-200 border hover:border-primary hover:scale-[1.02] bg-card"
+                      className="cursor-pointer hover:shadow-md transition-all duration-200 border hover:border-primary hover:scale-[1.02] bg-card h-[100px] md:h-[110px]"
                       onClick={() => handleAreaAtendimentoSelect(area.id)}
                     >
-                      <CardContent className="p-3 md:p-4 flex flex-col items-center text-center space-y-2">
+                      <CardContent className="p-3 md:p-4 flex flex-col items-center justify-center text-center space-y-2 h-full">
                         <img src={area.image} alt={area.title} className="w-7 h-7 md:w-9 md:h-9" />
                         <h3 className="font-medium text-xs md:text-sm">
                           {area.title}
@@ -383,11 +383,11 @@ const SuggestionBox = () => {
                   return (
                     <Card
                       key={modulo.id}
-                      className="cursor-pointer hover:shadow-md transition-all duration-200 border hover:border-primary hover:scale-[1.02] bg-card"
+                      className="cursor-pointer hover:shadow-md transition-all duration-200 border hover:border-primary hover:scale-[1.02] bg-card h-[110px] md:h-[120px]"
                       onClick={() => handleModuloSelect(modulo.id)}
                     >
-                      <CardContent className="p-2.5 md:p-3 space-y-1.5 md:space-y-2">
-                        <img src={modulo.image} alt={modulo.title} className="w-6 h-6 md:w-8 md:h-8" />
+                      <CardContent className="p-2.5 md:p-3 flex flex-col h-full space-y-1.5 md:space-y-2">
+                        <img src={modulo.image} alt={modulo.title} className="w-6 h-6 md:w-8 md:h-8 flex-shrink-0" />
                         <h3 className="font-medium text-[11px] md:text-xs leading-tight">
                           {modulo.title}
                         </h3>
