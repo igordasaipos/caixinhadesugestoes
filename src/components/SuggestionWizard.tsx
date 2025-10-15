@@ -359,7 +359,8 @@ const SuggestionWizard = () => {
 
       // Reset form and go back to step 1
       setFormData(prev => ({ 
-        ...prev, 
+        ...prev,
+        category: null,
         suggestion: "",
         preferredContactMethod: '',
         contactValue: "",
@@ -486,20 +487,10 @@ const SuggestionWizard = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           {currentStep === 1 && (
-            <>
-              <Step0CategorySelection 
-                selectedCategory={formData.category}
-                onCategorySelect={handleCategorySelect}
-              />
-              <Button
-                onClick={handleNext}
-                disabled={!formData.category}
-                className="w-full"
-              >
-                Próximo
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </>
+            <Step0CategorySelection 
+              selectedCategory={formData.category}
+              onCategorySelect={handleCategorySelect}
+            />
           )}
 
           {currentStep === 2 && (
