@@ -11,10 +11,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Headphones,
-  AlertTriangle,
-  Wrench,
-  MoreHorizontal,
   ShoppingCart,
   BarChart3,
   FileText,
@@ -30,7 +26,13 @@ import {
   GraduationCap,
   Building,
   MessageSquare,
+  Headphones,
+  MoreHorizontal,
 } from "lucide-react";
+import iconAtendimento from "@/assets/icon-atendimento.png";
+import iconMalFuncionamento from "@/assets/icon-mal-funcionamento.png";
+import iconMelhorias from "@/assets/icon-melhorias.png";
+import iconOutros from "@/assets/icon-outros.png";
 
 type AssuntoPrincipal = "atendimento" | "mal-funcionamento" | "melhorias" | "outros" | null;
 type ModuloSistema = string | null;
@@ -59,26 +61,22 @@ const SuggestionBox = () => {
     {
       id: "atendimento" as const,
       title: "Atendimento",
-      icon: Headphones,
-      color: "text-blue-500",
+      image: iconAtendimento,
     },
     {
       id: "mal-funcionamento" as const,
       title: "Mal funcionamento do sistema",
-      icon: AlertTriangle,
-      color: "text-orange-500",
+      image: iconMalFuncionamento,
     },
     {
       id: "melhorias" as const,
       title: "Melhorias do sistema e novas funcionalidades",
-      icon: Wrench,
-      color: "text-purple-500",
+      image: iconMelhorias,
     },
     {
       id: "outros" as const,
       title: "Outros",
-      icon: MoreHorizontal,
-      color: "text-gray-500",
+      image: iconOutros,
     },
   ];
 
@@ -288,7 +286,6 @@ const SuggestionBox = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 {assuntosPrincipais.map((assunto) => {
-                  const Icon = assunto.icon;
                   return (
                     <Card
                       key={assunto.id}
@@ -296,7 +293,7 @@ const SuggestionBox = () => {
                       onClick={() => handleAssuntoSelect(assunto.id)}
                     >
                       <CardContent className="p-4 md:p-6 flex flex-col items-center text-center space-y-2 md:space-y-3">
-                        <Icon className={`w-8 h-8 md:w-12 md:h-12 ${assunto.color}`} />
+                        <img src={assunto.image} alt={assunto.title} className="w-8 h-8 md:w-12 md:h-12" />
                         <h3 className="font-semibold text-sm md:text-base leading-tight">
                           {assunto.title}
                         </h3>
