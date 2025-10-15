@@ -280,12 +280,49 @@ const SuggestionWizard = () => {
   const handleSubmit = async () => {
     if (!formData.category || !formData.suggestion.trim() || !formData.preferredContactMethod) return;
     
+    // Validate contact value based on method
+    if (formData.preferredContactMethod === 'email' && !formData.contactEmail?.trim()) {
+      toast({
+        title: "Erro de validação",
+        description: "Por favor, preencha o e-mail para contato.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (formData.preferredContactMethod === 'whatsapp' && !formData.contactWhatsapp?.trim()) {
+      toast({
+        title: "Erro de validação",
+        description: "Por favor, preencha o WhatsApp para contato.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Validate suggestion length (client-side)
+    if (formData.suggestion.trim().length < 10) {
+      toast({
+        title: "Erro de validação",
+        description: "A sugestão deve ter pelo menos 10 caracteres.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (formData.suggestion.trim().length > 5000) {
+      toast({
+        title: "Erro de validação",
+        description: "A sugestão deve ter no máximo 5000 caracteres.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     // Prevenir envio com dados de teste em produção
     if (formData.storeName === "Loja Teste" && 
         window.location.hostname !== 'localhost' && 
         !window.location.search.includes('debug=1') &&
         import.meta.env.MODE !== 'development') {
-      console.error("🚫 Cannot submit with test data in production environment");
       toast({
         title: "Erro",
         description: "Dados de teste não podem ser enviados em produção. Recarregue a página.",
@@ -297,8 +334,10 @@ const SuggestionWizard = () => {
     setIsSubmitting(true);
 
     try {
-      console.log("=== SAVING TO SUPABASE ===");
-      console.log("Form data before save:", formData);
+      // Sanitize WhatsApp number (remove non-digits)
+      const sanitizedWhatsapp = formData.contactWhatsapp 
+        ? formData.contactWhatsapp.replace(/\D/g, '') 
+        : '';
       
       const dataToSave = {
         category: formData.category,
@@ -310,12 +349,10 @@ const SuggestionWizard = () => {
         store_name: formData.storeName,
         store_phone1: formData.storePhone,
         preferred_contact_method: formData.preferredContactMethod,
-        contact_value: formData.contactValue,
-        contact_whatsapp: formData.contactWhatsapp,
+        contact_value: formData.contactValue.trim(),
+        contact_whatsapp: sanitizedWhatsapp,
         source: 'webapp'
       };
-      
-      console.log("Data being saved to Supabase:", dataToSave);
 
       const { data, error } = await supabase
         .from('suggestions')
