@@ -13,12 +13,6 @@ import {
 import {
   Check,
   ArrowLeft,
-  DollarSign,
-  GraduationCap,
-  Building,
-  MessageSquare,
-  Headphones,
-  MoreHorizontal,
 } from "lucide-react";
 import iconAtendimento from "@/assets/icon-atendimento.png";
 import iconMalFuncionamento from "@/assets/icon-mal-funcionamento.png";
@@ -33,6 +27,12 @@ import iconSaiposBot from "@/assets/icon-saipos-bot.png";
 import iconCadastroProdutos from "@/assets/icon-cadastro-produtos.png";
 import iconRoteirizacao from "@/assets/icon-roteirizacao.png";
 import iconOutrosModulo from "@/assets/icon-outros-modulo.png";
+import iconSuporte from "@/assets/icon-suporte.png";
+import iconVendas from "@/assets/icon-vendas.png";
+import iconTreinamento from "@/assets/icon-treinamento.png";
+import iconImplantacao from "@/assets/icon-implantacao.png";
+import iconCanaisContato from "@/assets/icon-canais-contato.png";
+import iconOutrosAtendimento from "@/assets/icon-outros-atendimento.png";
 
 type AssuntoPrincipal = "atendimento" | "mal-funcionamento" | "melhorias" | "outros" | null;
 type ModuloSistema = string | null;
@@ -85,32 +85,32 @@ const SuggestionBox = () => {
     {
       id: "suporte",
       title: "Suporte",
-      icon: Headphones,
+      image: iconSuporte,
     },
     {
       id: "vendas",
       title: "Vendas",
-      icon: DollarSign,
+      image: iconVendas,
     },
     {
       id: "treinamento",
       title: "Treinamento",
-      icon: GraduationCap,
+      image: iconTreinamento,
     },
     {
       id: "implantacao",
       title: "Implantação",
-      icon: Building,
+      image: iconImplantacao,
     },
     {
       id: "canais-contato",
       title: "Canais de Contato",
-      icon: MessageSquare,
+      image: iconCanaisContato,
     },
     {
       id: "outros-atendimento",
       title: "Outros",
-      icon: MoreHorizontal,
+      image: iconOutrosAtendimento,
     },
   ];
 
@@ -327,7 +327,6 @@ const SuggestionBox = () => {
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
                 {areasAtendimento.map((area) => {
-                  const Icon = area.icon;
                   return (
                     <Card
                       key={area.id}
@@ -335,7 +334,7 @@ const SuggestionBox = () => {
                       onClick={() => handleAreaAtendimentoSelect(area.id)}
                     >
                       <CardContent className="p-3 md:p-4 flex flex-col items-center text-center space-y-2">
-                        <Icon className="w-7 h-7 md:w-9 md:h-9 text-primary" />
+                        <img src={area.image} alt={area.title} className="w-7 h-7 md:w-9 md:h-9" />
                         <h3 className="font-medium text-xs md:text-sm">
                           {area.title}
                         </h3>
