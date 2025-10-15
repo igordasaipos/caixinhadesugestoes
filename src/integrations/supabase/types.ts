@@ -49,52 +49,52 @@ export type Database = {
       }
       suggestions: {
         Row: {
-          account_id: string
           contact_value: string | null
           contact_whatsapp: string | null
           created_at: string
           id: string
           preferred_contact_method: string | null
+          source: string | null
           store_id: string | null
-          store_name: string | null
+          store_name: string
           store_phone1: string | null
           suggestion: string
           updated_at: string
           user_email: string | null
           user_full_name: string | null
-          visitor_id: string
+          user_id: string
         }
         Insert: {
-          account_id: string
           contact_value?: string | null
           contact_whatsapp?: string | null
           created_at?: string
           id?: string
           preferred_contact_method?: string | null
+          source?: string | null
           store_id?: string | null
-          store_name?: string | null
+          store_name?: string
           store_phone1?: string | null
           suggestion: string
           updated_at?: string
           user_email?: string | null
           user_full_name?: string | null
-          visitor_id: string
+          user_id: string
         }
         Update: {
-          account_id?: string
           contact_value?: string | null
           contact_whatsapp?: string | null
           created_at?: string
           id?: string
           preferred_contact_method?: string | null
+          source?: string | null
           store_id?: string | null
-          store_name?: string | null
+          store_name?: string
           store_phone1?: string | null
           suggestion?: string
           updated_at?: string
           user_email?: string | null
           user_full_name?: string | null
-          visitor_id?: string
+          user_id?: string
         }
         Relationships: []
       }
