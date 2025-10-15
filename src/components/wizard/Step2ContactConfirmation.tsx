@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Store, User, Mail, Phone, Hash, MessageSquare } from "lucide-react";
+import { Store, User, Mail, Phone, Hash, MessageSquare, Tag } from "lucide-react";
 
 interface FormData {
+  category: "atendimento" | "mal-funcionamento" | "melhorias" | "outros" | null;
   suggestion: string;
   userId: string;
   userFullName: string;
@@ -64,6 +65,13 @@ const Step2ContactConfirmation = ({ formData, setFormData }: Step2Props) => {
         <h3 className="font-medium mb-3">Confirme seus dados:</h3>
         <Card>
           <CardContent className="p-4 space-y-3">
+            {formData.category && (
+              <div className="flex items-center gap-2 text-sm">
+                <Tag className="w-4 h-4 text-muted-foreground" />
+                <span className="font-medium">Categoria:</span>
+                <span className="capitalize">{formData.category}</span>
+              </div>
+            )}
             <div className="flex items-center gap-2 text-sm">
               <Store className="w-4 h-4 text-muted-foreground" />
               <span className="font-medium">ID da Loja:</span>
