@@ -5,12 +5,14 @@ import { ArrowLeft, ArrowRight, FileX, AlertCircle, Settings } from "lucide-reac
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import Step0CategorySelection from "./wizard/Step0CategorySelection";
 import Step1SuggestionForm from "./wizard/Step1SuggestionForm";
 import Step2ContactConfirmation from "./wizard/Step2ContactConfirmation";
 import StepIndicator from "./wizard/StepIndicator";
 import UserSuggestions from "./UserSuggestions";
 
 interface FormData {
+  category: "atendimento" | "mal-funcionamento" | "melhorias" | "outros" | null;
   suggestion: string;
   userId: string;
   userFullName: string;
@@ -34,6 +36,7 @@ interface UserSuggestion {
 const SuggestionWizard = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
+    category: null,
     suggestion: "",
     userId: "",
     userFullName: "",
@@ -68,6 +71,7 @@ const SuggestionWizard = () => {
         const storeData = JSON.parse(storeStorage);
         
         const fallbackData = {
+          category: null,
           suggestion: "",
           userId: String(userData.id_user || ''),
           userFullName: userData.full_name || '',
@@ -103,6 +107,7 @@ const SuggestionWizard = () => {
         console.log("Event data:", event.data);
         
         const newFormData = {
+          category: null,
           suggestion: "",
           userId: String(event.data.userId || ''),
           userFullName: event.data.userFullName || '',
@@ -139,6 +144,7 @@ const SuggestionWizard = () => {
           } else {
             console.log("🧪 Development environment detected, using test data");
             const testFormData = {
+              category: null,
               suggestion: "",
               userId: "88251",
               userFullName: "Igor Nascimento",
@@ -272,7 +278,7 @@ const SuggestionWizard = () => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.suggestion.trim() || !formData.preferredContactMethod) return;
+    if (!formData.category || !formData.suggestion.trim() || !formData.preferredContactMethod) return;
     
     // Prevenir envio com dados de teste em produção
     if (formData.storeName === "Loja Teste" && 
@@ -294,8 +300,10 @@ const SuggestionWizard = () => {
       console.log("=== SAVING TO SUPABASE ===");
       console.log("Form data before save:", formData);
       
+      const categoryLabel = `[${formData.category}]`;
+      
       const dataToSave = {
-        suggestion: formData.suggestion.trim(),
+        suggestion: `${categoryLabel} ${formData.suggestion.trim()}`,
         user_id: formData.userId,
         user_full_name: formData.userFullName,
         user_email: formData.userEmail,
@@ -324,6 +332,7 @@ const SuggestionWizard = () => {
 
       // Send to n8n
       const n8nPayload = {
+        category: formData.category,
         suggestion: formData.suggestion,
         user: {
           id: formData.userId,
@@ -376,16 +385,17 @@ const SuggestionWizard = () => {
     }
   };
 
+  const handleCategorySelect = (category: "atendimento" | "mal-funcionamento" | "melhorias" | "outros") => {
+    setFormData((prev) => ({ ...prev, category }));
+    setCurrentStep(2);
+  };
+
   const handleNext = () => {
-    if (currentStep === 1 && formData.suggestion.trim()) {
-      setCurrentStep(2);
-    }
+    setCurrentStep((prev) => prev + 1);
   };
 
   const handleBack = () => {
-    if (currentStep === 2) {
-      setCurrentStep(1);
-    }
+    setCurrentStep((prev) => prev - 1);
   };
 
   // Check if we have any user data
@@ -466,7 +476,7 @@ const SuggestionWizard = () => {
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl">Envie sua Sugestão</CardTitle>
             <div className="flex items-center gap-2">
-              <StepIndicator currentStep={currentStep} totalSteps={2} />
+              <StepIndicator currentStep={currentStep} totalSteps={3} />
               <Link to="/config/n8n">
                 <Button variant="outline" size="sm">
                   <Settings className="w-4 h-4" />
@@ -478,13 +488,13 @@ const SuggestionWizard = () => {
         <CardContent className="space-y-4">
           {currentStep === 1 && (
             <>
-              <Step1SuggestionForm 
-                formData={formData}
-                setFormData={setFormData}
+              <Step0CategorySelection 
+                selectedCategory={formData.category}
+                onCategorySelect={handleCategorySelect}
               />
               <Button
                 onClick={handleNext}
-                disabled={!formData.suggestion.trim()}
+                disabled={!formData.category}
                 className="w-full"
               >
                 Próximo
@@ -494,6 +504,33 @@ const SuggestionWizard = () => {
           )}
 
           {currentStep === 2 && (
+            <>
+              <Step1SuggestionForm 
+                formData={formData}
+                setFormData={setFormData}
+              />
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={handleBack}
+                  className="flex-1"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Voltar
+                </Button>
+                <Button
+                  onClick={handleNext}
+                  disabled={!formData.suggestion.trim()}
+                  className="flex-1"
+                >
+                  Próximo
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </>
+          )}
+
+          {currentStep === 3 && (
             <>
               <Step2ContactConfirmation 
                 formData={formData}
