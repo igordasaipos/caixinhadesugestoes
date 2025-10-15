@@ -140,16 +140,16 @@ const SuggestionV2 = () => {
         ? `[${formData.category} - ${formData.subcategory}]`
         : `[${formData.category}]`;
 
-      const { error } = await supabase.from("suggestions").insert({
+      const { error } = await supabase.from("suggestions").insert([{
         suggestion: `${categoryLabel} ${formData.suggestion}`,
-        visitor_id: "v2-flow",
-        account_id: "direct-submission",
+        user_id: "direct-submission",
         user_full_name: formData.name,
         user_email: formData.email,
         store_phone1: formData.phone,
         contact_value: formData.email,
         preferred_contact_method: "email",
-      });
+        source: 'v2-flow'
+      }]);
 
       if (error) throw error;
 

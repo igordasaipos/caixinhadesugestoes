@@ -9,28 +9,26 @@ import { ptBR } from "date-fns/locale";
 
 interface FormData {
   suggestion: string;
-  visitorId: string;
-  accountId: string;
+  userId: string;
   userFullName: string;
   userEmail: string;
-  storePhone1: string;
+  storePhone: string;
 }
 
 interface UserSuggestion {
   id: string;
   suggestion: string;
-  visitor_id: string;
+  user_id: string;
   created_at: string;
 }
 
 const SuggestionForm = () => {
   const [formData, setFormData] = useState<FormData>({
     suggestion: "",
-    visitorId: "",
-    accountId: "",
+    userId: "",
     userFullName: "",
     userEmail: "",
-    storePhone1: "",
+    storePhone: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userSuggestions, setUserSuggestions] = useState<UserSuggestion[]>([]);
@@ -41,21 +39,13 @@ const SuggestionForm = () => {
       if (event.data?.type === "INIT_SUGGESTION_FORM") {
         console.log("=== REACT RECEIVED DATA ===");
         console.log("Raw event data:", event.data);
-        console.log("Data validation:", {
-          hasVisitorId: !!event.data.visitorId,
-          hasAccountId: !!event.data.accountId,
-          hasUserFullName: !!event.data.userFullName,
-          hasUserEmail: !!event.data.userEmail,
-          hasStorePhone1: !!event.data.storePhone1
-        });
         
         const newFormData = {
           suggestion: "",
-          visitorId: event.data.visitorId || "",
-          accountId: event.data.accountId || "",
-          userFullName: event.data.userFullName || "",
-          userEmail: event.data.userEmail || "",
-          storePhone1: event.data.storePhone1 || "",
+          userId: String(event.data.userId || ''),
+          userFullName: event.data.userFullName || '',
+          userEmail: event.data.userEmail || '',
+          storePhone: event.data.storePhone || '',
         };
         
         console.log("Setting form data to:", newFormData);
@@ -68,15 +58,14 @@ const SuggestionForm = () => {
 
     // FOR TESTING: Simulate data if no message received within 2 seconds
     const testDataTimer = setTimeout(() => {
-      if (!formData.accountId) {
+      if (!formData.userId) {
         console.log("🧪 No data received, setting test data");
         const testFormData = {
           suggestion: "",
-          visitorId: "63702",
-          accountId: "88251",
+          userId: "88251",
           userFullName: "Igor Nascimento",
           userEmail: "igor.nascimento@saipos.com",
-          storePhone1: "54992400194",
+          storePhone: "54992400194",
         };
         setFormData(testFormData);
       }
@@ -94,22 +83,22 @@ const SuggestionForm = () => {
   }, []);
 
   const fetchUserSuggestions = async () => {
-    if (!formData.accountId) {
-      console.log("❌ fetchUserSuggestions: No accountId available");
+    if (!formData.userId) {
+      console.log("❌ fetchUserSuggestions: No userId available");
       return;
     }
     
-    console.log("🔍 fetchUserSuggestions: Starting fetch for accountId:", formData.accountId);
+    console.log("🔍 fetchUserSuggestions: Starting fetch for userId:", formData.userId);
     setIsLoadingSuggestions(true);
     
     try {
       const { data, error } = await supabase
         .from('suggestions')
-        .select('id, suggestion, visitor_id, created_at')
-        .eq('account_id', formData.accountId)
+        .select('id, suggestion, user_id, created_at')
+        .eq('user_id', formData.userId)
         .order('created_at', { ascending: false });
 
-      console.log("📊 Supabase query result:", { data, error, accountId: formData.accountId });
+      console.log("📊 Supabase query result:", { data, error, userId: formData.userId });
 
       if (error) {
         console.error("❌ Erro ao buscar sugestões:", error);
@@ -126,14 +115,14 @@ const SuggestionForm = () => {
   };
 
   useEffect(() => {
-    console.log("👀 useEffect triggered with accountId:", formData.accountId);
-    if (formData.accountId) {
+    console.log("👀 useEffect triggered with userId:", formData.userId);
+    if (formData.userId) {
       fetchUserSuggestions();
     } else {
-      console.log("⚠️ No accountId, clearing suggestions");
+      console.log("⚠️ No userId, clearing suggestions");
       setUserSuggestions([]);
     }
-  }, [formData.accountId]);
+  }, [formData.userId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,26 +137,26 @@ const SuggestionForm = () => {
       
       const dataToSave = {
         suggestion: formData.suggestion.trim(),
-        visitor_id: formData.visitorId,
-        account_id: formData.accountId,
+        user_id: formData.userId,
         user_full_name: formData.userFullName,
         user_email: formData.userEmail,
-        store_phone1: formData.storePhone1,
+        store_phone1: formData.storePhone,
+        source: 'webapp'
       };
       
       console.log("Data being saved to Supabase:", dataToSave);
       console.log("Data validation before save:", {
         hasSuggestion: !!dataToSave.suggestion,
-        hasVisitorId: !!dataToSave.visitor_id,
-        hasAccountId: !!dataToSave.account_id,
+        hasUserId: !!dataToSave.user_id,
         hasUserFullName: !!dataToSave.user_full_name,
         hasUserEmail: !!dataToSave.user_email,
-        hasStorePhone1: !!dataToSave.store_phone1
+        hasStorePhone: !!dataToSave.store_phone1
       });
 
       const { data, error } = await supabase
         .from('suggestions')
-        .insert(dataToSave);
+        .insert([dataToSave])
+        .select();
 
       if (error) {
         console.error("Supabase error:", error);
@@ -225,7 +214,7 @@ const SuggestionForm = () => {
         </div>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <Store className="w-3 h-3" />
-          <span>Loja {suggestion.visitor_id}</span>
+          <span>ID {suggestion.user_id}</span>
         </div>
       </div>
       <div className="flex items-start gap-2">
@@ -236,7 +225,7 @@ const SuggestionForm = () => {
   );
 
   // Check if we have any user data
-  const hasUserData = formData.accountId || formData.userFullName || formData.userEmail;
+  const hasUserData = formData.userId || formData.userFullName || formData.userEmail;
 
   // Show empty state if no user data is available
   if (!hasUserData) {
@@ -306,16 +295,10 @@ const SuggestionForm = () => {
         </CardHeader>
         <CardContent className="space-y-3">
           <DebugField
-            icon={Store}
-            label="Loja selecionada"
-            value={formData.visitorId}
-            hasValue={!!formData.visitorId}
-          />
-          <DebugField
             icon={Hash}
             label="ID do usuário"
-            value={formData.accountId}
-            hasValue={!!formData.accountId}
+            value={formData.userId}
+            hasValue={!!formData.userId}
           />
           <DebugField
             icon={User}
@@ -332,13 +315,13 @@ const SuggestionForm = () => {
           <DebugField
             icon={Phone}
             label="Telefone"
-            value={formData.storePhone1}
-            hasValue={!!formData.storePhone1}
+            value={formData.storePhone}
+            hasValue={!!formData.storePhone}
           />
         </CardContent>
       </Card>
 
-      {formData.accountId && (
+      {formData.userId && (
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center justify-between">

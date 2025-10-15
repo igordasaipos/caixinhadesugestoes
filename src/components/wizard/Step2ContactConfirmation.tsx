@@ -5,17 +5,16 @@ import { Store, User, Mail, Phone, Hash, MessageSquare } from "lucide-react";
 
 interface FormData {
   suggestion: string;
-  visitorId: string;
-  accountId: string;
+  userId: string;
   userFullName: string;
   userEmail: string;
-  storePhone1: string;
+  storeId: string;
+  storeName: string;
+  storePhone: string;
   preferredContactMethod: 'email' | 'whatsapp' | '';
   contactValue: string;
   contactWhatsapp: string;
   contactEmail: string;
-  tradeName: string;
-  storeId: string;
 }
 
 interface Step2Props {
@@ -30,7 +29,7 @@ const Step2ContactConfirmation = ({ formData, setFormData }: Step2Props) => {
     if (method === 'email') {
       contactValue = formData.contactEmail || formData.userEmail;
     } else if (method === 'whatsapp') {
-      contactValue = formData.storePhone1;
+      contactValue = formData.storePhone;
     }
     
     setFormData(prev => ({
@@ -73,7 +72,7 @@ const Step2ContactConfirmation = ({ formData, setFormData }: Step2Props) => {
             <div className="flex items-center gap-2 text-sm">
               <Store className="w-4 h-4 text-muted-foreground" />
               <span className="font-medium">Nome da Loja:</span>
-              <span>{formData.tradeName || `Loja ${formData.visitorId}`}</span>
+              <span>{formData.storeName || `Loja ${formData.storeId}`}</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <User className="w-4 h-4 text-muted-foreground" />

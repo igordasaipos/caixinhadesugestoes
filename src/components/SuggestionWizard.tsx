@@ -12,23 +12,22 @@ import UserSuggestions from "./UserSuggestions";
 
 interface FormData {
   suggestion: string;
-  visitorId: string;
-  accountId: string;
+  userId: string;
   userFullName: string;
   userEmail: string;
-  storePhone1: string;
+  storeId: string;
+  storeName: string;
+  storePhone: string;
   preferredContactMethod: 'email' | 'whatsapp' | '';
   contactValue: string;
   contactWhatsapp: string;
   contactEmail: string;
-  tradeName: string;
-  storeId: string;
 }
 
 interface UserSuggestion {
   id: string;
   suggestion: string;
-  visitor_id: string;
+  user_id: string;
   created_at: string;
 }
 
@@ -36,37 +35,32 @@ const SuggestionWizard = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
     suggestion: "",
-    visitorId: "",
-    accountId: "",
+    userId: "",
     userFullName: "",
     userEmail: "",
-    storePhone1: "",
+    storeId: "",
+    storeName: "",
+    storePhone: "",
     preferredContactMethod: '',
     contactValue: "",
     contactWhatsapp: "",
     contactEmail: "",
-    tradeName: "",
-    storeId: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userSuggestions, setUserSuggestions] = useState<UserSuggestion[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const { toast } = useToast();
 
-  // Função para tentar acessar dados diretamente do localStorage (fallback)
   const getDataFromLocalStorage = () => {
     try {
       console.log("🔍 Fallback: Trying to access localStorage directly...");
       
-      // Tentar acessar dados do usuário
       const userStorage = localStorage.getItem('ngStorage-user');
       const storeStorage = localStorage.getItem('ngStorage-currentStore');
       
       console.log("📦 LocalStorage contents:", {
         hasUserData: !!userStorage,
-        hasStoreData: !!storeStorage,
-        userData: userStorage ? JSON.parse(userStorage) : null,
-        storeData: storeStorage ? JSON.parse(storeStorage) : null
+        hasStoreData: !!storeStorage
       });
 
       if (userStorage && storeStorage) {
@@ -75,17 +69,16 @@ const SuggestionWizard = () => {
         
         const fallbackData = {
           suggestion: "",
-          visitorId: storeData.id_store || storeData.storeId || storeData.store_id || storeData.id || "",
-          accountId: userData.id_user || userData.userId || userData.user_id || userData.id || "",
-          userFullName: userData.full_name || userData.fullName || userData.name || userData.first_name || "",
-          userEmail: userData.email || userData.login || userData.user_email || "",
-          storePhone1: storeData.phone_1 || storeData.phone1 || storeData.telefone || storeData.phone || "",
+          userId: String(userData.id_user || ''),
+          userFullName: userData.full_name || '',
+          userEmail: userData.email || '',
+          storeId: String(storeData.id_store || ''),
+          storeName: storeData.trade_name || '',
+          storePhone: storeData.phone_1 || '',
           preferredContactMethod: '' as 'email' | 'whatsapp' | '',
           contactValue: "",
           contactWhatsapp: "",
           contactEmail: "",
-          tradeName: storeData.trade_name || storeData.tradeName || storeData.nome_fantasia || storeData.nome || storeData.name || "",
-          storeId: storeData.id_store || storeData.storeId || storeData.store_id || storeData.id || 'N/A',
         };
 
         console.log("✅ Fallback data extracted:", fallbackData);
@@ -107,37 +100,20 @@ const SuggestionWizard = () => {
       if (event.data?.type === "INIT_SUGGESTION_FORM") {
         dataReceived = true;
         console.log("=== REACT RECEIVED DATA VIA POSTMESSAGE ===");
-        console.log("Raw event data:", event.data);
-        console.log("Event origin:", event.origin);
-        console.log("Data validation:", {
-          hasAccountId: !!event.data.accountId,
-          hasVisitorId: !!event.data.visitorId,
-          hasUserName: !!event.data.userFullName,
-          hasTradeName: !!event.data.tradeName,
-          tradeNameValue: event.data.tradeName
-        });
-        
-        // Normalize incoming data and derive tradeName from storeId when needed
-        let incomingTradeName = event.data.tradeName || "";
-        let incomingStoreId = event.data.storeId || "";
-        if (!incomingTradeName && typeof incomingStoreId === 'string' && incomingStoreId.includes(' - ')) {
-          const parts = incomingStoreId.split(' - ');
-          if (parts[1]) incomingTradeName = parts.slice(1).join(' - ').trim();
-        }
+        console.log("Event data:", event.data);
         
         const newFormData = {
           suggestion: "",
-          visitorId: event.data.visitorId || "",
-          accountId: event.data.accountId || "",
-          userFullName: event.data.userFullName || "",
-          userEmail: event.data.userEmail || "",
-          storePhone1: event.data.storePhone1 || "",
+          userId: String(event.data.userId || ''),
+          userFullName: event.data.userFullName || '',
+          userEmail: event.data.userEmail || '',
+          storeId: String(event.data.storeId || ''),
+          storeName: event.data.storeName || '',
+          storePhone: event.data.storePhone || '',
           preferredContactMethod: '' as 'email' | 'whatsapp' | '',
           contactValue: "",
           contactWhatsapp: "",
           contactEmail: "",
-          tradeName: incomingTradeName,
-          storeId: incomingStoreId,
         };
         
         console.log("✅ Setting form data from postMessage:", newFormData);
@@ -147,7 +123,7 @@ const SuggestionWizard = () => {
 
     // Fallback timer - apenas para desenvolvimento/debug
     const fallbackTimer = setTimeout(() => {
-      if (!dataReceived && !formData.accountId) {
+      if (!dataReceived && !formData.userId) {
         console.log("⚠️ No postMessage received after 5 seconds, trying localStorage fallback...");
         
         // Apenas tentar localStorage em desenvolvimento/debug
@@ -157,24 +133,23 @@ const SuggestionWizard = () => {
           
           const fallbackData = getDataFromLocalStorage();
           
-          if (fallbackData && fallbackData.accountId && fallbackData.tradeName) {
+          if (fallbackData && fallbackData.userId && fallbackData.storeName) {
             console.log("✅ Using fallback data from localStorage (DEV MODE)");
             setFormData(fallbackData);
           } else {
             console.log("🧪 Development environment detected, using test data");
             const testFormData = {
               suggestion: "",
-              visitorId: "63702",
-              accountId: "88251",
+              userId: "88251",
               userFullName: "Igor Nascimento",
               userEmail: "igor.nascimento@saipos.com",
-              storePhone1: "54992400194",
+              storeId: "63702",
+              storeName: "Loja Teste",
+              storePhone: "54992400194",
               preferredContactMethod: '' as 'email' | 'whatsapp' | '',
               contactValue: "",
               contactWhatsapp: "",
               contactEmail: "",
-            tradeName: "Loja Teste",
-            storeId: "63702",
             };
             setFormData(testFormData);
           }
@@ -184,7 +159,7 @@ const SuggestionWizard = () => {
         }
       } else if (dataReceived) {
         console.log("✅ Data was received via postMessage - no fallback needed");
-      } else if (formData.accountId) {
+      } else if (formData.userId) {
         console.log("✅ Form data already available - no fallback needed");
       }
     }, 5000);
@@ -202,22 +177,22 @@ const SuggestionWizard = () => {
   }, []);
 
   const fetchUserSuggestions = async () => {
-    if (!formData.accountId) {
-      console.log("❌ fetchUserSuggestions: No accountId available");
+    if (!formData.userId) {
+      console.log("❌ fetchUserSuggestions: No userId available");
       return;
     }
     
-    console.log("🔍 fetchUserSuggestions: Starting fetch for accountId:", formData.accountId);
+    console.log("🔍 fetchUserSuggestions: Starting fetch for userId:", formData.userId);
     setIsLoadingSuggestions(true);
     
     try {
       const { data, error } = await supabase
         .from('suggestions')
-        .select('id, suggestion, visitor_id, created_at')
-        .eq('account_id', formData.accountId)
+        .select('id, suggestion, user_id, created_at')
+        .eq('user_id', formData.userId)
         .order('created_at', { ascending: false });
 
-      console.log("📊 Supabase query result:", { data, error, accountId: formData.accountId });
+      console.log("📊 Supabase query result:", { data, error, userId: formData.userId });
 
       if (error) {
         console.error("❌ Erro ao buscar sugestões:", error);
@@ -234,14 +209,14 @@ const SuggestionWizard = () => {
   };
 
   useEffect(() => {
-    console.log("👀 useEffect triggered with accountId:", formData.accountId);
-    if (formData.accountId) {
+    console.log("👀 useEffect triggered with userId:", formData.userId);
+    if (formData.userId) {
       fetchUserSuggestions();
     } else {
-      console.log("⚠️ No accountId, clearing suggestions");
+      console.log("⚠️ No userId, clearing suggestions");
       setUserSuggestions([]);
     }
-  }, [formData.accountId]);
+  }, [formData.userId]);
 
   const sendToN8n = async (suggestionData: any) => {
     try {
@@ -300,7 +275,7 @@ const SuggestionWizard = () => {
     if (!formData.suggestion.trim() || !formData.preferredContactMethod) return;
     
     // Prevenir envio com dados de teste em produção
-    if (formData.tradeName === "Loja Teste" && 
+    if (formData.storeName === "Loja Teste" && 
         window.location.hostname !== 'localhost' && 
         !window.location.search.includes('debug=1') &&
         import.meta.env.MODE !== 'development') {
@@ -321,23 +296,24 @@ const SuggestionWizard = () => {
       
       const dataToSave = {
         suggestion: formData.suggestion.trim(),
-        visitor_id: formData.visitorId,
-        account_id: formData.accountId,
+        user_id: formData.userId,
         user_full_name: formData.userFullName,
         user_email: formData.userEmail,
-        store_phone1: formData.storePhone1,
         store_id: formData.storeId,
-        store_name: formData.tradeName,
+        store_name: formData.storeName,
+        store_phone1: formData.storePhone,
         preferred_contact_method: formData.preferredContactMethod,
         contact_value: formData.contactValue,
         contact_whatsapp: formData.contactWhatsapp,
+        source: 'webapp'
       };
       
       console.log("Data being saved to Supabase:", dataToSave);
 
       const { data, error } = await supabase
         .from('suggestions')
-        .insert(dataToSave);
+        .insert([dataToSave])
+        .select();
 
       if (error) {
         console.error("Supabase error:", error);
@@ -346,20 +322,18 @@ const SuggestionWizard = () => {
       
       console.log("✅ Successfully saved to Supabase:", data);
 
-      // Send to n8n - Complete user data
+      // Send to n8n
       const n8nPayload = {
         suggestion: formData.suggestion,
         user: {
-          id: formData.accountId,
-          visitor_id: formData.visitorId,
+          id: formData.userId,
           name: formData.userFullName,
           email: formData.userEmail
         },
         store: {
-          id: formData.visitorId,
-          store_id: formData.storeId,
-          name: formData.tradeName,
-          phone: formData.storePhone1
+          id: formData.storeId,
+          name: formData.storeName,
+          phone: formData.storePhone
         },
         contact_preferences: {
           preferred_method: formData.preferredContactMethod,
@@ -386,8 +360,17 @@ const SuggestionWizard = () => {
       setCurrentStep(1);
       await fetchUserSuggestions();
       
+      toast({
+        title: "Sucesso!",
+        description: "Sua sugestão foi enviada com sucesso.",
+      });
     } catch (error) {
       console.error("Erro ao salvar:", error);
+      toast({
+        title: "Erro",
+        description: "Erro ao enviar sugestão. Tente novamente.",
+        variant: "destructive"
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -406,15 +389,15 @@ const SuggestionWizard = () => {
   };
 
   // Check if we have any user data
-  const hasUserData = formData.accountId || formData.userFullName || formData.userEmail;
+  const hasUserData = formData.userId || formData.userFullName || formData.userEmail;
 
   // Debug information for production troubleshooting
   const debugInfo = {
-    hasAccountId: !!formData.accountId,
+    hasUserId: !!formData.userId,
     hasUserName: !!formData.userFullName,
-    hasTradeName: !!formData.tradeName,
-    accountIdValue: formData.accountId,
-    tradeNameValue: formData.tradeName,
+    hasStoreName: !!formData.storeName,
+    userIdValue: formData.userId,
+    storeNameValue: formData.storeName,
     storeIdValue: formData.storeId,
     isLocalhost: window.location.hostname === 'localhost' || window.location.hostname.includes('lovable'),
   };
@@ -455,11 +438,11 @@ const SuggestionWizard = () => {
                   <div className="text-sm">
                     <p className="font-medium mb-2 text-red-700">Debug Information:</p>
                     <div className="text-xs text-red-600 space-y-1">
-                      <div>• Has Account ID: {debugInfo.hasAccountId ? '✅' : '❌'}</div>
+                      <div>• Has User ID: {debugInfo.hasUserId ? '✅' : '❌'}</div>
                       <div>• Has User Name: {debugInfo.hasUserName ? '✅' : '❌'}</div>
-                      <div>• Has Trade Name: {debugInfo.hasTradeName ? '✅' : '❌'}</div>
-                      <div>• Account ID: {debugInfo.accountIdValue || 'Vazio'}</div>
-                      <div>• Trade Name: {debugInfo.tradeNameValue || 'Vazio'}</div>
+                      <div>• Has Store Name: {debugInfo.hasStoreName ? '✅' : '❌'}</div>
+                      <div>• User ID: {debugInfo.userIdValue || 'Vazio'}</div>
+                      <div>• Store Name: {debugInfo.storeNameValue || 'Vazio'}</div>
                       <div>• Store ID: {debugInfo.storeIdValue || 'Vazio'}</div>
                       <div>• Environment: {debugInfo.isLocalhost ? 'Development' : 'Production'}</div>
                     </div>
@@ -541,7 +524,7 @@ const SuggestionWizard = () => {
       <UserSuggestions 
         userSuggestions={userSuggestions}
         isLoadingSuggestions={isLoadingSuggestions}
-        accountId={formData.accountId}
+        userId={formData.userId}
       />
     </div>
   );

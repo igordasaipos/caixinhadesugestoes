@@ -1,127 +1,61 @@
 <script>
 (function() {
-  // Função para extrair dados do usuário do ngStorage-user
+  // Função simplificada para extrair dados do usuário do ngStorage-user
   function getUserData() {
-    var userId = '';
-    var userFullName = '';
-    var userEmail = '';
-
     try {
       var userStorage = localStorage.getItem('ngStorage-user');
-      console.log('=== DEBUG USER DATA ===');
-      console.log('ngStorage-user exists:', !!userStorage);
+      console.log('✅ Reading ngStorage-user');
       
-      if (userStorage) {
-        var userData = JSON.parse(userStorage);
-        console.log('User data structure:', userData);
-        
-        // Campos corretos baseados na estrutura real
-        userId = userData.id_user || userData.userId || userData.user_id || userData.id || '';
-        userFullName = userData.full_name || userData.fullName || userData.name || userData.first_name || '';
-        userEmail = userData.email || userData.login || userData.user_email || '';
-        
-        console.log('Extracted user data:', {
-          userId: userId,
-          userFullName: userFullName,
-          userEmail: userEmail
-        });
-      } else {
-        console.log('ngStorage-user not found in localStorage');
+      if (!userStorage) {
+        console.error('❌ ngStorage-user não encontrado');
+        return { userId: '', userFullName: '', userEmail: '' };
       }
+      
+      var userData = JSON.parse(userStorage);
+      console.log('📊 User data:', { 
+        id_user: userData.id_user, 
+        full_name: userData.full_name, 
+        email: userData.email 
+      });
+      
+      return {
+        userId: String(userData.id_user || ''),
+        userFullName: userData.full_name || '',
+        userEmail: userData.email || ''
+      };
     } catch (e) {
-      console.error('Error accessing ngStorage-user:', e);
+      console.error('❌ Erro ao ler ngStorage-user:', e);
+      return { userId: '', userFullName: '', userEmail: '' };
     }
-
-    return {
-      userId: userId,
-      userFullName: userFullName,
-      userEmail: userEmail
-    };
   }
 
-  // Função para extrair dados da loja do ngStorage-currentStore
+  // Função simplificada para extrair dados da loja do ngStorage-currentStore
   function getStoreData() {
-    var storeId = '';
-    var storePhone1 = '';
-    var tradeName = '';
-
     try {
       var storeStorage = localStorage.getItem('ngStorage-currentStore');
-      console.log('=== DEBUG STORE DATA ===');
-      console.log('ngStorage-currentStore exists:', !!storeStorage);
-      console.log('ngStorage-currentStore raw content:', storeStorage);
+      console.log('✅ Reading ngStorage-currentStore');
       
-      if (storeStorage) {
-        var storeData = JSON.parse(storeStorage);
-        console.log('Store data structure (complete):', storeData);
-        console.log('All available store data keys:', Object.keys(storeData));
-        
-        // Deep search across nested objects for store fields
-        function deepFind(obj, keys) {
-          var found = null;
-          function traverse(o) {
-            if (!o || typeof o !== 'object' || found) return;
-            for (var i = 0; i < keys.length; i++) {
-              var k = keys[i];
-              if (Object.prototype.hasOwnProperty.call(o, k)) {
-                var directVal = o[k];
-                if (directVal != null && directVal !== '') {
-                  found = directVal;
-                  return;
-                }
-              }
-            }
-            for (var key in o) {
-              if (!Object.prototype.hasOwnProperty.call(o, key)) continue;
-              var val = o[key];
-              if (typeof val === 'object') traverse(val);
-              if (found) return;
-            }
-          }
-          traverse(obj);
-          return found;
-        }
-
-        var possibleStoreIds = ['id_store', 'store_id', 'storeId', 'id', 'loja_id'];
-        var possibleTradeNames = ['trade_name', 'tradeName', 'nome_fantasia', 'nomeFantasia', 'fantasy_name', 'corporate_name', 'razao_social'];
-        var possiblePhones = ['phone_1', 'phone1', 'telefone', 'phone', 'phone_2', 'fone1', 'tel1', 'telefone1'];
-
-        // Prefer deep search results; keep previously found simple values as fallback
-        storeId = deepFind(storeData, possibleStoreIds) || storeId;
-        tradeName = deepFind(storeData, possibleTradeNames) || tradeName;
-        storePhone1 = deepFind(storeData, possiblePhones) || storePhone1;
-
-
-        
-        console.log('=== FINAL STORE DATA EXTRACTED ===');
-        console.log('Store ID:', storeId);
-        console.log('Trade Name:', tradeName);
-        console.log('Store Phone:', storePhone1);
-        
-        // Alertas para campos não encontrados
-        if (!storeId) {
-          console.warn('⚠️ No store ID found in any of the expected fields!');
-        }
-        if (!tradeName) {
-          console.warn('⚠️ No trade name found in any of the expected fields!');
-          console.warn('Available keys were:', Object.keys(storeData));
-        }
-        if (!storePhone1) {
-          console.warn('⚠️ No phone found in any of the expected fields!');
-        }
-      } else {
-        console.error('❌ ngStorage-currentStore not found in localStorage');
-        console.log('Available localStorage keys:', Object.keys(localStorage));
+      if (!storeStorage) {
+        console.error('❌ ngStorage-currentStore não encontrado');
+        return { storeId: '', tradeName: '', storePhone: '' };
       }
+      
+      var storeData = JSON.parse(storeStorage);
+      console.log('📊 Store data:', { 
+        id_store: storeData.id_store, 
+        trade_name: storeData.trade_name, 
+        phone_1: storeData.phone_1 
+      });
+      
+      return {
+        storeId: String(storeData.id_store || ''),
+        tradeName: storeData.trade_name || '',
+        storePhone: storeData.phone_1 || ''
+      };
     } catch (e) {
-      console.error('❌ Error accessing ngStorage-currentStore:', e);
+      console.error('❌ Erro ao ler ngStorage-currentStore:', e);
+      return { storeId: '', tradeName: '', storePhone: '' };
     }
-
-    return {
-      storeId: storeId || 'N/A',
-      tradeName: tradeName || 'Nome não encontrado',
-      storePhone1: storePhone1
-    };
   }
 
   // Função para criar e mostrar o modal com o iframe
@@ -210,7 +144,7 @@
   }
 
   function waitForDataThenSend(iframeSource, maxWaitMs, intervalMs) {
-    maxWaitMs = maxWaitMs || 10000;
+    maxWaitMs = maxWaitMs || 5000;  // Reduzido de 10s para 5s
     intervalMs = intervalMs || 300;
     
     console.log('GTM: Starting waitForDataThenSend with maxWait:', maxWaitMs, 'ms');
@@ -240,13 +174,12 @@
         
         var dataToSend = {
           type: 'INIT_SUGGESTION_FORM',
-          accountId: userData.userId,
-          visitorId: storeData.storeId,
+          userId: userData.userId,
           userFullName: userData.userFullName,
           userEmail: userData.userEmail,
-          storePhone1: storeData.storePhone1,
-          tradeName: storeData.tradeName,
-          storeId: storeData.storeId
+          storeId: storeData.storeId,
+          storeName: storeData.tradeName,
+          storePhone: storeData.storePhone
         };
         
         console.log('GTM: Final data being sent:', dataToSend);
@@ -260,13 +193,12 @@
         
         var dataToSend = {
           type: 'INIT_SUGGESTION_FORM',
-          accountId: userData.userId || '',
-          visitorId: storeData.storeId || '',
+          userId: userData.userId || '',
           userFullName: userData.userFullName || '',
           userEmail: userData.userEmail || '',
-          storePhone1: storeData.storePhone1 || '',
-          tradeName: storeData.tradeName || '',
-          storeId: storeData.storeId || ''
+          storeId: storeData.storeId || '',
+          storeName: storeData.tradeName || '',
+          storePhone: storeData.storePhone || ''
         };
         
         console.log('GTM: Fallback data being sent:', dataToSend);

@@ -6,14 +6,14 @@ import { ptBR } from "date-fns/locale";
 interface UserSuggestion {
   id: string;
   suggestion: string;
-  visitor_id: string;
+  user_id: string;
   created_at: string;
 }
 
 interface UserSuggestionsProps {
   userSuggestions: UserSuggestion[];
   isLoadingSuggestions: boolean;
-  accountId: string;
+  userId: string;
 }
 
 const SuggestionItem = ({ suggestion }: { suggestion: UserSuggestion }) => (
@@ -30,7 +30,7 @@ const SuggestionItem = ({ suggestion }: { suggestion: UserSuggestion }) => (
       </div>
       <div className="flex items-center gap-1 text-xs text-muted-foreground">
         <Store className="w-3 h-3" />
-        <span>Loja {suggestion.visitor_id}</span>
+        <span>ID {suggestion.user_id}</span>
       </div>
     </div>
     <div className="flex items-start gap-2">
@@ -40,8 +40,8 @@ const SuggestionItem = ({ suggestion }: { suggestion: UserSuggestion }) => (
   </div>
 );
 
-const UserSuggestions = ({ userSuggestions, isLoadingSuggestions, accountId }: UserSuggestionsProps) => {
-  if (!accountId) return null;
+const UserSuggestions = ({ userSuggestions, isLoadingSuggestions, userId }: UserSuggestionsProps) => {
+  if (!userId) return null;
 
   return (
     <Card>

@@ -2,16 +2,16 @@ import { Textarea } from "@/components/ui/textarea";
 
 interface FormData {
   suggestion: string;
-  visitorId: string;
-  accountId: string;
+  userId: string;
   userFullName: string;
   userEmail: string;
-  storePhone1: string;
+  storeId: string;
+  storeName: string;
+  storePhone: string;
   preferredContactMethod: 'email' | 'whatsapp' | '';
   contactValue: string;
   contactWhatsapp: string;
-  tradeName: string;
-  storeId: string;
+  contactEmail: string;
 }
 
 interface Step1Props {
